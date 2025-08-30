@@ -8,7 +8,10 @@ self: super: with super; {
       sha256 = "sha256-PF1Y0GLk4qMqyEXnKFIWTRCCp/1TsGkjAM8adChGYv4=";
     };
 
-    nativeBuildInputs = [ undmg ];
+    nativeBuildInputs = [
+      undmg
+      p7zip
+    ];
 
     # Only unpack and install; never write to /Applications during build
     phases = [
@@ -17,15 +20,17 @@ self: super: with super; {
     ];
 
     unpackPhase = ''
-      # Avoid macOS coreutils locale issues when extracting weird filenames
-      export LANG=C
-      export LC_ALL=C
-      undmg "$src"
+      # Ensure Unicode-capable locale so bsdtar/undmg can create UTF-8 paths
+      export LANG=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+      export LC_CTYPE=en_US.UTF-8
+      # Try undmg first; fall back to 7z extraction if it errors on filenames
+      undmg "$src" || 7z x -y "$src"
     '';
 
     installPhase = ''
       # Find the app bundle inside the extracted dmg contents
-      APP_NAME=$(find . -maxdepth 1 -type d -name 'Capture One*.app' | head -n 1)
+      APP_NAME=$(find . -type d -name 'Capture One*.app' | head -n 1)
       if [ -z "$APP_NAME" ]; then
         echo "Failed to locate Capture One .app in DMG"
         ls -la
