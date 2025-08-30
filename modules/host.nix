@@ -6,6 +6,7 @@
 }:
 let
   user = "junr03";
+  nfsServer = "100.81.172.57";
 in
 {
   imports = [
@@ -60,6 +61,12 @@ in
     fira-code
     nerd-fonts.fira-code
   ];
+
+  # Ensure NFS mounts are declared and mounted
+  environment.etc."fstab".text = ''
+    ${nfsServer}:/photos/raw /Volumes/photos/raw nfs rw,vers=3 0 0
+    ${nfsServer}:/photos/edited /Volumes/photos/edited nfs rw,vers=3 0 0
+  '';
 
   # System activation scripts
   system.activationScripts = {
@@ -154,5 +161,27 @@ in
         TrackpadThreeFingerDrag = true;
       };
     };
+  };
+
+  # Create mount points and try to mount at activation/boot
+  system.activationScripts.nfsMounts = {
+    text = ''
+      set -euo pipefail
+      echo "Ensuring NFS mount points exist"
+      /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
+
+      echo "Attempting to mount NFS volumes"
+      NFS_SERVER="${nfsServer}"
+      if ! /sbin/mount | /usr/bin/grep -q "on /Volumes/photos/raw "; then
+        /sbin/mount -t nfs -o vers=3 "$NFS_SERVER:/photos/raw" /Volumes/photos/raw || true
+      fi
+      if ! /sbin/mount | /usr/bin/grep -q "on /Volumes/photos/edited "; then
+        /sbin/mount -t nfs -o vers=3 "$NFS_SERVER:/photos/edited" /Volumes/photos/edited || true
+      fi
+    '';
+    deps = [
+      "users"
+      "groups"
+    ];
   };
 }
