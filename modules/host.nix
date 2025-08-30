@@ -84,33 +84,43 @@ in
     # Copy Capture One into /Applications using macOS tools (preserve attributes)
     installCaptureOne = {
       text = ''
-        set -e
+        set -euo pipefail
         echo "=== Installing Capture One (if missing) ==="
-        if [ ! -d "/Applications/Capture One.app" ]; then
+        # Consider any app matching 'Capture One*.app' as installed
+        if find /Applications -maxdepth 1 -type d -name 'Capture One*.app' | grep -q .; then
+          echo "Capture One already present in /Applications"
+        else
           DMG_PATH='${pkgs.capture-one}'
           if [ ! -e "$DMG_PATH" ]; then
             echo "Capture One DMG not found at $DMG_PATH" >&2
             exit 1
           fi
           MNT=$(mktemp -d)
+          cleanup() { hdiutil detach "$MNT" >/dev/null 2>&1 || true; rmdir "$MNT" 2>/dev/null || true; }
+          trap cleanup EXIT
           echo "Mounting DMG..."
-          hdiutil attach -nobrowse -readonly -mountpoint "$MNT" "$DMG_PATH" >/dev/null
-          SRC_APP=$(find "$MNT" -maxdepth 2 -type d -name 'Capture One*.app' | head -n 1)
-          if [ -z "$SRC_APP" ]; then
-            echo "Failed to locate Capture One .app on DMG" >&2
-            /bin/ls -la "$MNT"
-            hdiutil detach "$MNT" >/dev/null || true
-            rmdir "$MNT" || true
-            exit 1
+          hdiutil attach -quiet -nobrowse -readonly -mountpoint "$MNT" "$DMG_PATH"
+          # Prefer a .pkg if present
+          PKG=$(find "$MNT" -maxdepth 2 -type f -name '*.pkg' | head -n 1 || true)
+          if [ -n "$PKG" ]; then
+            echo "Installing via pkg: $PKG"
+            /usr/sbin/installer -pkg "$PKG" -target / -verboseR
+          else
+            # Fallback: copy the .app bundle (avoid installer apps)
+            SRC_APP=$(find "$MNT" -maxdepth 2 -type d -name 'Capture One*.app' \
+              -not -iname '*install*' -not -iname '*installer*' | head -n 1 || true)
+            if [ -z "$SRC_APP" ]; then
+              echo "Failed to locate Capture One .app or .pkg on DMG" >&2
+              /bin/ls -la "$MNT"
+              exit 1
+            fi
+            DEST="/Applications/$(basename "$SRC_APP")"
+            echo "Copying $SRC_APP to $DEST (using ditto)..."
+            ditto "$SRC_APP" "$DEST"
+            # Clear quarantine to avoid 'can't be opened' messages
+            xattr -dr com.apple.quarantine "$DEST" || true
           fi
-          echo "Copying $SRC_APP to /Applications (using ditto)..."
-          ditto "$SRC_APP" "/Applications/Capture One.app"
-          echo "Detaching DMG..."
-          hdiutil detach "$MNT" >/dev/null || true
-          rmdir "$MNT" || true
           echo "Capture One installed to /Applications"
-        else
-          echo "Capture One already present in /Applications"
         fi
       '';
       deps = [
