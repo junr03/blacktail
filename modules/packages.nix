@@ -22,7 +22,6 @@ with pkgs;
   age-plugin-yubikey
   gnupg
   libfido2
-  ykman
 
   # Media-related packages
   dejavu_fonts
