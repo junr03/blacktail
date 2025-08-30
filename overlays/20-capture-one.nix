@@ -17,11 +17,20 @@ self: super: with super; {
     ];
 
     unpackPhase = ''
+      # Avoid macOS coreutils locale issues when extracting weird filenames
+      export LANG=C
+      export LC_ALL=C
       undmg "$src"
     '';
 
     installPhase = ''
-      APP_NAME="Capture One.app"
+      # Find the app bundle inside the extracted dmg contents
+      APP_NAME=$(find . -maxdepth 1 -type d -name 'Capture One*.app' | head -n 1)
+      if [ -z "$APP_NAME" ]; then
+        echo "Failed to locate Capture One .app in DMG"
+        ls -la
+        exit 1
+      fi
       mkdir -p "$out/Applications"
       cp -R "$APP_NAME" "$out/Applications/"
     '';
