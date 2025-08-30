@@ -1,15 +1,20 @@
-self: super:
-with super; {
+self: super: with super; {
   capture-one = stdenvNoCC.mkDerivation rec {
     pname = "capture-one";
     version = "16.6.5.17";
 
     src = fetchurl {
       url = "https://downloads.captureone.pro/d/mac/39c0c6f987ddd1d187d6fb3cb3680b01673344cc/CaptureOne.Mac.16.6.5.17.dmg";
-      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # TODO: replace with actual hash
+      sha256 = "sha256-PF1Y0GLk4qMqyEXnKFIWTRCCp/1TsGkjAM8adChGYv4=";
     };
 
     nativeBuildInputs = [ undmg ];
+
+    # Only unpack and install; never write to /Applications during build
+    phases = [
+      "unpackPhase"
+      "installPhase"
+    ];
 
     unpackPhase = ''
       undmg "$src"
@@ -17,11 +22,8 @@ with super; {
 
     installPhase = ''
       APP_NAME="Capture One.app"
-      echo "Installing $APP_NAME into /Applications"
-      mkdir -p /Applications
-      cp -R "$APP_NAME" /Applications/
-      rm -rf "$APP_NAME"
-      mkdir -p $out
+      mkdir -p "$out/Applications"
+      cp -R "$APP_NAME" "$out/Applications/"
     '';
 
     meta = with lib; {
