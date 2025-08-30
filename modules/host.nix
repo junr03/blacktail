@@ -80,6 +80,44 @@ in
         "groups"
       ];
     };
+
+    # Copy Capture One into /Applications using macOS tools (preserve attributes)
+    installCaptureOne = {
+      text = ''
+        set -e
+        echo "=== Installing Capture One (if missing) ==="
+        if [ ! -d "/Applications/Capture One.app" ]; then
+          DMG_PATH='${pkgs.capture-one}'
+          if [ ! -e "$DMG_PATH" ]; then
+            echo "Capture One DMG not found at $DMG_PATH" >&2
+            exit 1
+          fi
+          MNT=$(mktemp -d)
+          echo "Mounting DMG..."
+          hdiutil attach -nobrowse -readonly -mountpoint "$MNT" "$DMG_PATH" >/dev/null
+          SRC_APP=$(find "$MNT" -maxdepth 2 -type d -name 'Capture One*.app' | head -n 1)
+          if [ -z "$SRC_APP" ]; then
+            echo "Failed to locate Capture One .app on DMG" >&2
+            /bin/ls -la "$MNT"
+            hdiutil detach "$MNT" >/dev/null || true
+            rmdir "$MNT" || true
+            exit 1
+          fi
+          echo "Copying $SRC_APP to /Applications (using ditto)..."
+          ditto "$SRC_APP" "/Applications/Capture One.app"
+          echo "Detaching DMG..."
+          hdiutil detach "$MNT" >/dev/null || true
+          rmdir "$MNT" || true
+          echo "Capture One installed to /Applications"
+        else
+          echo "Capture One already present in /Applications"
+        fi
+      '';
+      deps = [
+        "users"
+        "groups"
+      ];
+    };
   };
 
   system = {

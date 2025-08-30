@@ -34,8 +34,6 @@ with pkgs;
   noto-fonts
   noto-fonts-emoji
   meslo-lgs-nf
-  # Custom overlays
-  capture-one
 
   # Node.js development tools
   nodePackages.npm # globally install npm
