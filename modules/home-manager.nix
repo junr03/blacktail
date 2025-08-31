@@ -41,8 +41,7 @@ in
     # This message is safe to ignore.
 
     masApps = {
-      #"1password" = 1333542190;
-      #"wireguard" = 1451685025;
+      "photomator" = 1444636541;
     };
   };
 
