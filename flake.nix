@@ -26,11 +26,16 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    gallatin = {
+      url = "github:junr03/gallatin?ref=main";
+      flake = false;
+    };
   };
   outputs =
     {
       agenix,
       darwin,
+      gallatin,
       home-manager,
       homebrew-bundle,
       homebrew-cask,

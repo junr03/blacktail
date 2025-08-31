@@ -1,5 +1,6 @@
 {
   agenix,
+  gallatin,
   config,
   pkgs,
   ...
@@ -52,6 +53,7 @@ in
     [
       agenix.packages."${pkgs.system}".default
       age-plugin-yubikey
+      (callPackage "${gallatin}/rename-cr3.nix" { })
     ]
     ++ (import ./packages.nix { inherit pkgs; });
 
