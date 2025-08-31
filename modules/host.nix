@@ -64,8 +64,10 @@ in
     nerd-fonts.fira-code
   ];
 
-  # Provide an autofs direct map for NFS mounts
-  environment.etc."auto_nfs_blacktail".text = ''
+  # Provide autofs direct maps via the default static map.
+  # macOS' /etc/auto_master contains: "/-    -static" which reads /etc/auto_static.
+  # Writing our entries to /etc/auto_static avoids editing /etc/auto_master.
+  environment.etc."auto_static".text = ''
     /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/raw
     /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/edited
   '';
@@ -165,23 +167,12 @@ in
     };
   };
 
-  # Create mount points and try to mount at activation/boot
+  # Create mount points and refresh autofs at activation/boot
   system.activationScripts.nfsMounts = {
     text = ''
       set -euo pipefail
       echo "Ensuring NFS mount points exist"
       /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
-
-      echo "[nfsAutofs] Ensuring auto_master has our direct map"
-      MASTER_FILE="/etc/auto_master"
-      MAP_LINE="/- auto_nfs_blacktail -timeout=86400"
-      if /usr/bin/grep -qE '^/-[[:space:]]+auto_nfs_blacktail' "$MASTER_FILE"; then
-        if ! /usr/bin/grep -qE '^/-[[:space:]]+auto_nfs_blacktail.*-timeout=' "$MASTER_FILE"; then
-          /usr/bin/sed -i "" -E 's|^/-[[:space:]]+auto_nfs_blacktail.*$|/- auto_nfs_blacktail -timeout=86400|' "$MASTER_FILE" || true
-        fi
-      else
-        echo "$MAP_LINE" | /usr/bin/tee -a "$MASTER_FILE" >/dev/null || true
-      fi
 
       echo "[nfsAutofs] Reloading automount maps"
       /usr/sbin/automount -vc || true
