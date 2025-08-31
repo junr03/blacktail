@@ -99,6 +99,23 @@
         "type": "github"
       }
     },
+    "gallatin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1756597534,
+        "narHash": "sha256-zdbypIcZr83jpQPD8v6sO2peFvZmMH/+FzZc79qX33E=",
+        "owner": "junr03",
+        "repo": "gallatin",
+        "rev": "65586479c7d30306d7e43903e68737be905c3dcc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "junr03",
+        "ref": "main",
+        "repo": "gallatin",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -291,6 +308,7 @@
       "inputs": {
         "agenix": "agenix",
         "darwin": "darwin_2",
+        "gallatin": "gallatin",
         "home-manager": "home-manager_2",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
