@@ -62,10 +62,10 @@ in
     nerd-fonts.fira-code
   ];
 
-  # Provide NFS fstab entries in a separate managed file; activation will merge
-  environment.etc."fstab.electricpeak".text = ''
-    ${nfsServer}:/photos/raw /Volumes/photos/raw nfs rw,vers=3 0 0
-    ${nfsServer}:/photos/edited /Volumes/photos/edited nfs rw,vers=3 0 0
+  # Provide an autofs direct map for NFS mounts
+  environment.etc."auto_nfs_blacktail".text = ''
+    /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/raw
+    /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/edited
   '';
 
   # System activation scripts
@@ -170,32 +170,52 @@ in
       echo "Ensuring NFS mount points exist"
       /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
 
-      echo "Ensuring fstab contains NFS entries"
-      FSTAB_FILE="/etc/fstab"
-      NFS_SERVER="${nfsServer}"
-      RAW_LINE="$NFS_SERVER:/photos/raw /Volumes/photos/raw nfs rw,vers=3 0 0"
-      EDITED_LINE="$NFS_SERVER:/photos/edited /Volumes/photos/edited nfs rw,vers=3 0 0"
-      if [ ! -f "$FSTAB_FILE" ]; then
-        /usr/bin/touch "$FSTAB_FILE"
-      fi
-      if ! /usr/bin/grep -qF "$RAW_LINE" "$FSTAB_FILE"; then
-        echo "$RAW_LINE" >> "$FSTAB_FILE"
-      fi
-      if ! /usr/bin/grep -qF "$EDITED_LINE" "$FSTAB_FILE"; then
-        echo "$EDITED_LINE" >> "$FSTAB_FILE"
+      echo "[nfsAutofs] Ensuring auto_master has our direct map"
+      MASTER_FILE="/etc/auto_master"
+      MAP_LINE="/- auto_nfs_blacktail -timeout=86400"
+      if /usr/bin/grep -qE '^/-[[:space:]]+auto_nfs_blacktail' "$MASTER_FILE"; then
+        if ! /usr/bin/grep -qE '^/-[[:space:]]+auto_nfs_blacktail.*-timeout=' "$MASTER_FILE"; then
+          /usr/bin/sed -i "" -E 's|^/-[[:space:]]+auto_nfs_blacktail.*$|/- auto_nfs_blacktail -timeout=86400|' "$MASTER_FILE" || true
+        fi
+      else
+        echo "$MAP_LINE" | /usr/bin/tee -a "$MASTER_FILE" >/dev/null || true
       fi
 
-      echo "Attempting to mount NFS volumes"
-      if ! /sbin/mount | /usr/bin/grep -q "on /Volumes/photos/raw "; then
-        /sbin/mount -t nfs -o vers=3 "$NFS_SERVER:/photos/raw" /Volumes/photos/raw || true
-      fi
-      if ! /sbin/mount | /usr/bin/grep -q "on /Volumes/photos/edited "; then
-        /sbin/mount -t nfs -o vers=3 "$NFS_SERVER:/photos/edited" /Volumes/photos/edited || true
-      fi
+      echo "[nfsAutofs] Reloading automount maps"
+      /usr/sbin/automount -vc || true
+
+      echo "[nfsAutofs] Touching paths to trigger mounts"
+      /bin/ls -1 /Volumes/photos/raw >/dev/null 2>&1 || true
+      /bin/ls -1 /Volumes/photos/edited >/dev/null 2>&1 || true
     '';
     deps = [
       "users"
       "groups"
     ];
+  };
+
+  # Keep mounts pinned: lightweight LaunchDaemon that periodically touches them
+  launchd.daemons."photos-nfs-pin" = {
+    script = ''
+      #! /bin/sh
+      set -euo pipefail
+      /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
+      while true; do
+        /bin/ls -d /Volumes/photos/raw >/dev/null 2>&1 || true
+        /bin/ls -d /Volumes/photos/edited >/dev/null 2>&1 || true
+        /bin/sleep 60
+      done
+    '';
+    serviceConfig = {
+      Label = "net.electricpeak.photos-nfs-pin";
+      RunAtLoad = true;
+      KeepAlive = {
+        SuccessfulExit = false;
+        NetworkState = true;
+      };
+      ProcessType = "Background";
+      StandardOutPath = "/var/log/photos-nfs-pin.log";
+      StandardErrorPath = "/var/log/photos-nfs-pin.err.log";
+    };
   };
 }
