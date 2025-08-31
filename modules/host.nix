@@ -7,6 +7,7 @@
 }:
 let
   user = "junr03";
+  nfsServer = "100.81.172.57";
 in
 {
   imports = [
@@ -62,6 +63,14 @@ in
     fira-code
     nerd-fonts.fira-code
   ];
+
+  # Provide autofs direct maps via the default static map.
+  # macOS' /etc/auto_master contains: "/-    -static" which reads /etc/auto_static.
+  # Writing our entries to /etc/auto_static avoids editing /etc/auto_master.
+  environment.etc."auto_static".text = ''
+    /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/raw
+    /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/edited
+  '';
 
   # System activation scripts
   system.activationScripts = {
@@ -155,6 +164,51 @@ in
         Clicking = true;
         TrackpadThreeFingerDrag = true;
       };
+    };
+  };
+
+  # Create mount points and refresh autofs at activation/boot
+  system.activationScripts.nfsMounts = {
+    text = ''
+      set -euo pipefail
+      echo "Ensuring NFS mount points exist"
+      /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
+
+      echo "[nfsAutofs] Reloading automount maps"
+      /usr/sbin/automount -vc || true
+
+      echo "[nfsAutofs] Touching paths to trigger mounts"
+      /bin/ls -1 /Volumes/photos/raw >/dev/null 2>&1 || true
+      /bin/ls -1 /Volumes/photos/edited >/dev/null 2>&1 || true
+    '';
+    deps = [
+      "users"
+      "groups"
+    ];
+  };
+
+  # Keep mounts pinned: lightweight LaunchDaemon that periodically touches them
+  launchd.daemons."photos-nfs-pin" = {
+    script = ''
+      #! /bin/sh
+      set -euo pipefail
+      /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
+      while true; do
+        /bin/ls -d /Volumes/photos/raw >/dev/null 2>&1 || true
+        /bin/ls -d /Volumes/photos/edited >/dev/null 2>&1 || true
+        /bin/sleep 60
+      done
+    '';
+    serviceConfig = {
+      Label = "net.electricpeak.photos-nfs-pin";
+      RunAtLoad = true;
+      KeepAlive = {
+        SuccessfulExit = false;
+        NetworkState = true;
+      };
+      ProcessType = "Background";
+      StandardOutPath = "/var/log/photos-nfs-pin.log";
+      StandardErrorPath = "/var/log/photos-nfs-pin.err.log";
     };
   };
 }
