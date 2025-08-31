@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  gallatin,
   ...
 }:
 {
@@ -23,6 +24,11 @@
           attrNames (readDir path)
         )
       )
-      ++ [ ];
+      ++ [
+        # Expose junr03/gallatin packages under pkgs.gallatin
+        (final: prev: {
+          gallatin = gallatin.packages.${prev.system};
+        })
+      ];
   };
 }

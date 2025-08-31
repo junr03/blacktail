@@ -4,6 +4,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     agenix.url = "github:ryantm/agenix";
     home-manager.url = "github:nix-community/home-manager";
+    gallatin.url = "github:junr03/gallatin";
     darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,6 +36,7 @@
       homebrew-bundle,
       homebrew-cask,
       homebrew-core,
+      gallatin,
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
