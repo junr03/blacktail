@@ -194,8 +194,9 @@ in
       set -euo pipefail
       /bin/mkdir -p /Volumes/photos /Volumes/photos/raw /Volumes/photos/edited
       while true; do
-        /bin/ls -d /Volumes/photos/raw >/dev/null 2>&1 || true
-        /bin/ls -d /Volumes/photos/edited >/dev/null 2>&1 || true
+        # Touch inside the directories to trigger autofs mounts if needed
+        /bin/ls -1 /Volumes/photos/raw >/dev/null 2>&1 || true
+        /bin/ls -1 /Volumes/photos/edited >/dev/null 2>&1 || true
         /bin/sleep 60
       done
     '';
