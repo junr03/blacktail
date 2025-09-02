@@ -64,10 +64,18 @@ in
     nerd-fonts.fira-code
   ];
 
-  # Provide autofs direct maps via the default static map.
-  # macOS' /etc/auto_master contains: "/-    -static" which reads /etc/auto_static.
-  # Writing our entries to /etc/auto_static avoids editing /etc/auto_master.
-  environment.etc."auto_static".text = ''
+  # Explicitly manage autofs master and a dedicated direct map to ensure mounts are active.
+  # This avoids depending on the system's "-static" entry which may not be present on all hosts.
+  environment.etc."auto_master".text = ''
+    # Automounter master map
+    +auto_master            # Use DirectoryService-managed entries if present
+    /net    -hosts         -nobrowse,hidefromfinder,nosuid
+    /home   auto_home      -nobrowse,hidefromfinder
+    /Network/Servers       -fstab
+    /-      auto_photos    -nosuid
+  '';
+
+  environment.etc."auto_photos".text = ''
     /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/raw
     /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/edited
   '';
