@@ -26,6 +26,7 @@ _: [
   "shapr3d"
 
   # Browsers
+  "firefox"
 
   # Creative Tools
   "adobe-creative-cloud"
