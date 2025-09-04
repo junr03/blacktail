@@ -76,8 +76,8 @@ in
   '';
 
   environment.etc."auto_photos".text = ''
-    /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/raw
-    /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid     ${nfsServer}:/photos/edited
+    /Volumes/photos/raw    -fstype=nfs,vers=3,resvport,nosuid,nolock     ${nfsServer}:/photos/raw
+    /Volumes/photos/edited -fstype=nfs,vers=3,resvport,nosuid,nolock     ${nfsServer}:/photos/edited
   '';
 
   # System activation scripts
