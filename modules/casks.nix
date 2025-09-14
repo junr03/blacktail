@@ -3,6 +3,7 @@ _: [
   "ghostty"
 
   # Communication Tools
+  "discord"
   "microsoft-excel"
   "microsoft-outlook"
   "microsoft-powerpoint"
