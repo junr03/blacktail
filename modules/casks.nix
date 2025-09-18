@@ -28,5 +28,4 @@ _: [
   "firefox"
 
   # Creative Tools
-  "adobe-creative-cloud"
 ]
