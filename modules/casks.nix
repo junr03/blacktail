@@ -23,10 +23,10 @@ _: [
 
   # Productivity Tools
   "shapr3d"
-  "freecad"
 
   # Browsers
   "firefox"
 
   # Creative Tools
+  "inkscape"
 ]
