@@ -4,6 +4,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     agenix.url = "github:ryantm/agenix";
     home-manager.url = "github:nix-community/home-manager";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,6 +47,7 @@
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
+      rust-overlay,
       self,
     }@inputs:
     let
@@ -98,7 +103,12 @@
           inherit system;
           specialArgs = inputs;
           modules = [
-            { nixpkgs.overlays = [ nix-vscode-extensions.overlays.default ]; }
+            {
+              nixpkgs.overlays = [
+                nix-vscode-extensions.overlays.default
+                rust-overlay.overlays.default
+              ];
+            }
             ./modules/host.nix # Load host first to ensure Rosetta activation script runs before Homebrew
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
