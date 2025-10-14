@@ -60,6 +60,10 @@ with pkgs;
 
   # Rust packages
   rustc
-  rust-src
   cargo
+  (pkgs.rust-bin.stable.latest.default.override {
+    extensions = [ "rust-src" ];
+  })
+  rust-analyzer-unwrapped
+  pkg-config
 ]
