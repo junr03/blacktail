@@ -57,4 +57,8 @@ with pkgs;
   python3
   virtualenv
   dockutil
+
+  # Rust packages
+  rustc
+  cargo
 ]
