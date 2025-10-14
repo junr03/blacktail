@@ -57,4 +57,11 @@ with pkgs;
   python3
   virtualenv
   dockutil
+
+  # Rust packages
+  (pkgs.rust-bin.stable.latest.default.override {
+    extensions = [ "rust-src" ];
+  })
+  rust-analyzer-unwrapped
+  pkg-config
 ]
