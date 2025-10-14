@@ -59,8 +59,6 @@ with pkgs;
   dockutil
 
   # Rust packages
-  rustc
-  cargo
   (pkgs.rust-bin.stable.latest.default.override {
     extensions = [ "rust-src" ];
   })
