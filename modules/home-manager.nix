@@ -381,7 +381,9 @@ in
               userSettings = {
                 "editor.formatOnSave" = true;
                 "rust.editor.defaultFormatter" = "rust-lang.rust-analyzer";
-                "rust-analyzer.checkOnSave.command" = "clippy";
+                "rust-analyzer.checkOnSave" = {
+                  command = "clippy";
+                };
                 "workbench.colorTheme" = "Gruvbox Dark Medium";
                 "extensions.autoCheckUpdates" = true;
                 "extensions.autoUpdate" = true;
