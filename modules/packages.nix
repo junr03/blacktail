@@ -60,5 +60,6 @@ with pkgs;
 
   # Rust packages
   rustc
+  rust-src
   cargo
 ]
