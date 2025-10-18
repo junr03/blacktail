@@ -408,7 +408,6 @@ in
                 jnoortheen.nix-ide
                 openai.chatgpt
                 platformio.platformio-ide
-                ms-vscode.cpptools
               ];
             };
           };
