@@ -407,6 +407,7 @@ in
                 rust-lang.rust-analyzer
                 jnoortheen.nix-ide
                 openai.chatgpt
+                platformio.platformio-ide
               ];
             };
           };
