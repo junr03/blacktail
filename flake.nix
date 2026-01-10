@@ -31,7 +31,7 @@
       flake = false;
     };
     gallatin = {
-      url = "github:junr03/gallatin?ref=main";
+      url = "github:junr03/gallatin?rev=7281e93b508c432fc2e83aa1c5250fe5ee92f8c9";
       flake = false;
     };
   };
