@@ -5,6 +5,7 @@ with pkgs;
   bash-completion
   coreutils
   killall
+  fastfetch
   openssh
   sqlite
   wget
@@ -28,11 +29,11 @@ with pkgs;
   meslo-lgs-nf
 
   # Node.js development tools
-  nodePackages.npm # globally install npm
-  nodePackages.prettier
+  prettier
   nodejs
 
   # Text and terminal utilities
+  ripgrep
   tmux
   zsh-powerlevel10k
   nixfmt-rfc-style
