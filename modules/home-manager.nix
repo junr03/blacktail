@@ -290,8 +290,6 @@ in
                 ServerAliveCountMax = 3;
                 HashKnownHosts = true;
                 UserKnownHostsFile = "~/.ssh/known_hosts";
-                ControlPath = "~/.ssh/master-%r@%n:%p";
-                ControlPersist = "no";
               };
 
               "github.com" = {
