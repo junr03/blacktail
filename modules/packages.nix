@@ -9,7 +9,7 @@ with pkgs;
   btop
   coreutils
   killall
-  neofetch
+  fastfetch
   openssh
   sqlite
   wget
@@ -32,12 +32,11 @@ with pkgs;
   font-awesome
   hack-font
   noto-fonts
-  noto-fonts-emoji
+  noto-fonts-color-emoji
   meslo-lgs-nf
 
   # Node.js development tools
-  nodePackages.npm # globally install npm
-  nodePackages.prettier
+  prettier
   nodejs
 
   # Text and terminal utilities
