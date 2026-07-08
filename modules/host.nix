@@ -154,7 +154,9 @@ in
   # Create mount points and try to mount immediately during activation.
   system.activationScripts.nfsMounts = {
     text = ''
-      ${photosMountScript} || true
+      (
+        ${photosMountScript}
+      ) || true
     '';
     deps = [
       "users"
