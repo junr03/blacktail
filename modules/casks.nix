@@ -16,7 +16,4 @@ _: [
   "raycast"
   "yubico-authenticator"
   "yubico-yubikey-manager"
-
-  # Creative Tools
-  "bambu-studio"
 ]
