@@ -136,12 +136,14 @@ in
           git = {
             enable = true;
             ignores = [ "*.swp" ];
-            userName = name;
-            userEmail = email;
             lfs = {
               enable = true;
             };
-            extraConfig = {
+            settings = {
+              user = {
+                name = name;
+                email = email;
+              };
               init.defaultBranch = "main";
               core = {
                 editor = "vim";
@@ -270,16 +272,27 @@ in
           };
           ssh = {
             enable = true;
+            enableDefaultConfig = false;
 
-            matchBlocks = {
+            settings = {
+              "*" = {
+                ForwardAgent = false;
+                AddKeysToAgent = "no";
+                Compression = false;
+                ServerAliveInterval = 0;
+                ServerAliveCountMax = 3;
+                HashKnownHosts = true;
+                UserKnownHostsFile = "~/.ssh/known_hosts";
+              };
+
               "github.com" = {
-                identitiesOnly = true;
-                identityFile = "/Users/${user}/.ssh/github";
+                IdentitiesOnly = true;
+                IdentityFile = "/Users/${user}/.ssh/github";
               };
 
               "electricpeak.net" = {
-                identitiesOnly = true;
-                identityFile = "/Users/${user}/.ssh/electricpeak";
+                IdentitiesOnly = true;
+                IdentityFile = "/Users/${user}/.ssh/electricpeak";
               };
             };
           };

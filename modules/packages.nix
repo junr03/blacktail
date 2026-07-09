@@ -11,7 +11,9 @@ with pkgs;
   wget
   zip
   gh
-  pre-commit
+  (pre-commit.overrideAttrs (_: {
+    doCheck = false;
+  }))
 
   # Encryption and security tools
   age
@@ -36,7 +38,7 @@ with pkgs;
   ripgrep
   tmux
   zsh-powerlevel10k
-  nixfmt-rfc-style
+  nixfmt
 
   # Python packages
   python3
