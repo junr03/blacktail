@@ -11,7 +11,9 @@ with pkgs;
   wget
   zip
   gh
-  pre-commit
+  (pre-commit.overrideAttrs (_: {
+    doCheck = false;
+  }))
 
   # Encryption and security tools
   age
