@@ -58,7 +58,6 @@ in
       {
         home = {
           enableNixpkgsReleaseCheck = false;
-          packages = pkgs.callPackage ./packages.nix { };
           file = userFiles;
           stateVersion = "23.11";
         };
@@ -81,9 +80,6 @@ in
             ];
             shellAliases = {
               ll = "ls -lh --color=auto";
-
-              # Use ripgrep for searching
-              search = "rg -p --glob '!node_modules/*' \\\$@";
 
               # Use difftastic for diffing
               diff = "difft";
@@ -112,9 +108,6 @@ in
 
               # Remove history data we don't want to see
               export HISTIGNORE="pwd:ls:cd"
-
-              # Ripgrep alias
-              alias search=rg -p --glob '!node_modules/*'  $@
 
               # code is my editor
               export ALTERNATE_EDITOR=""
