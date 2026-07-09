@@ -11,6 +11,7 @@ _: [
   "zoom"
 
   # Utility Tools
+  "copilot-money"
   "tailscale"
   "yubico-authenticator"
   "yubico-yubikey-manager"
