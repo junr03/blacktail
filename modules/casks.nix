@@ -13,6 +13,7 @@ _: [
   # Utility Tools
   "copilot-money"
   "tailscale"
+  "raycast"
   "yubico-authenticator"
   "yubico-yubikey-manager"
 
