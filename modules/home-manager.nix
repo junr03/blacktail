@@ -48,6 +48,8 @@ in
 
   # Enable home-manager
   home-manager = {
+    # Preserve pre-existing files while they transition to Home Manager ownership.
+    backupFileExtension = "before-nix";
     useGlobalPkgs = true;
     users.${user} =
       {
