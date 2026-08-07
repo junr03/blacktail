@@ -1,5 +1,4 @@
 _: [
-  # Imported from the previous Homebrew installation
   "argocd"
   "awscli"
   "gh"
@@ -17,9 +16,4 @@ _: [
   "worktrunk"
   "xcodegen"
   "yq"
-
-  # The previous tailscale formula conflicts with the tailscale-app cask.
-
-  # Existing Blacktail configuration
-  "ykman"
 ]
