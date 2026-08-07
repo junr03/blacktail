@@ -14,35 +14,27 @@ in
     ./.
   ];
 
-  # Setup user, packages, programs
-  nix = {
-    package = pkgs.nix;
+  determinateNix = {
+    enable = true;
 
-    settings = {
+    customSettings = {
       trusted-users = [
+        "root"
         "@admin"
-        "${user}"
+        user
       ];
       substituters = [
         "https://nix-community.cachix.org"
         "https://cache.nixos.org"
       ];
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
     };
 
-    gc = {
-      automatic = true;
-      interval = {
-        Weekday = 0;
-        Hour = 2;
-        Minute = 0;
-      };
-      options = "--delete-older-than 30d";
-    };
-
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
+    determinateNixd.garbageCollector.strategy = "automatic";
   };
 
   # Load configuration that is shared across systems

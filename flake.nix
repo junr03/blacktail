@@ -11,6 +11,7 @@
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
     nix-vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";
     };
@@ -37,6 +38,7 @@
   outputs =
     {
       darwin,
+      determinate,
       gallatin,
       home-manager,
       homebrew-bundle,
@@ -114,6 +116,7 @@
                 rust-overlay.overlays.default
               ];
             }
+            determinate.darwinModules.default
             ./modules/host.nix # Load host first to ensure Rosetta activation script runs before Homebrew
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
