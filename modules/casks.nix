@@ -1,19 +1,18 @@
 _: [
-  # Development Tools
-  "ghostty"
-
-  # Communication Tools
-  "microsoft-excel"
-  "microsoft-powerpoint"
-  "microsoft-teams"
-  "microsoft-word"
-  "slack"
-  "zoom"
-
-  # Utility Tools
+  "1password"
+  "1password-cli"
+  "bambu-studio"
+  "chatgpt"
   "copilot-money"
-  "tailscale"
+  "docker-desktop"
+  "ghostty"
+  "google-drive"
+  "obsidian"
+  "postico"
   "raycast"
-  "yubico-authenticator"
-  "yubico-yubikey-manager"
+  "slack"
+  "tailscale-app"
+  "zed"
+  "zerotier-one"
+  "zoom"
 ]
