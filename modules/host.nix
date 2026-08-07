@@ -7,33 +7,6 @@
 }:
 let
   user = "junr03";
-  nfsServer = "100.81.172.57";
-  photosMountScript = ''
-    set -u
-
-    /bin/mkdir -p /Volumes/photos/raw /Volumes/photos/edited
-    failures=0
-
-    mount_if_missing() {
-      remote="$1"
-      mountpoint="$2"
-
-      if /sbin/mount | /usr/bin/grep -q " on $mountpoint "; then
-        echo "$mountpoint is already mounted"
-        return 0
-      fi
-
-      echo "Mounting $remote at $mountpoint"
-      if ! /sbin/mount_nfs -o vers=3,resvport,nosuid,nolock "$remote" "$mountpoint"; then
-        echo "Failed to mount $remote at $mountpoint" >&2
-        failures=1
-      fi
-    }
-
-    mount_if_missing "${nfsServer}:/photos/raw" /Volumes/photos/raw
-    mount_if_missing "${nfsServer}:/photos/edited" /Volumes/photos/edited
-    exit "$failures"
-  '';
 in
 {
   imports = [
@@ -151,34 +124,4 @@ in
     };
   };
 
-  # Create mount points and try to mount immediately during activation.
-  system.activationScripts.nfsMounts = {
-    text = ''
-      (
-        ${photosMountScript}
-      ) || true
-    '';
-    deps = [
-      "users"
-      "groups"
-    ];
-  };
-
-  # Mount the photo shares at boot and retry periodically for network changes.
-  launchd.daemons."photos-nfs-mount" = {
-    script = ''
-      ${photosMountScript}
-    '';
-    serviceConfig = {
-      Label = "net.electricpeak.photos-nfs-mount";
-      RunAtLoad = true;
-      StartInterval = 60;
-      KeepAlive = {
-        NetworkState = true;
-      };
-      ProcessType = "Background";
-      StandardOutPath = "/var/log/photos-nfs-mount.log";
-      StandardErrorPath = "/var/log/photos-nfs-mount.err.log";
-    };
-  };
 }
