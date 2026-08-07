@@ -1,26 +1,19 @@
 {
   config,
-  pkgs,
+  hostProfile,
   lib,
-  home-manager,
-  primaryUser,
+  pkgs,
   ...
 }:
 let
-  user = primaryUser;
-  name = "Jose Ulises Nino Rivera";
-  email = "junr03@users.noreply.github.com";
-  userFiles = import ./files.nix { inherit user config pkgs; };
+  user = hostProfile.username;
+  userHome = "/Users/${user}";
+  userFiles = import ./files.nix { inherit config hostProfile user; };
 in
 {
-  imports = [
-    ./dock
-  ];
-
-  # It me
   users.users.${user} = {
-    name = "${user}";
-    home = "/Users/${user}";
+    name = user;
+    home = userHome;
     isHidden = false;
     shell = pkgs.zsh;
   };
@@ -29,6 +22,13 @@ in
     enable = true;
     casks = pkgs.callPackage ./casks.nix { };
     brews = pkgs.callPackage ./brews.nix { };
+    taps = builtins.attrNames config.nix-homebrew.taps;
+
+    onActivation = {
+      autoUpdate = false;
+      cleanup = "check";
+      upgrade = true;
+    };
 
     # These app IDs are from using the mas CLI app
     # mas = mac app store
@@ -46,10 +46,8 @@ in
     };
   };
 
-  # Enable home-manager
   home-manager = {
-    # Preserve pre-existing files while they transition to Home Manager ownership.
-    backupFileExtension = "before-nix";
+    backupFileExtension = hostProfile.homeManager.backupFileExtension;
     useGlobalPkgs = true;
     users.${user} =
       {
@@ -60,8 +58,20 @@ in
       }:
       {
         home = {
-          enableNixpkgsReleaseCheck = false;
           file = userFiles;
+          sessionPath = [
+            "$HOME/.pnpm-packages/bin"
+            "$HOME/.pnpm-packages"
+            "$HOME/.npm-packages/bin"
+            "$HOME/bin"
+            "$HOME/.local/share/bin"
+          ];
+          sessionVariables = {
+            ALTERNATE_EDITOR = "";
+            EDITOR = "code";
+            HISTIGNORE = "pwd:ls:cd";
+            VISUAL = "code";
+          };
           stateVersion = "23.11";
         };
         programs = {
@@ -99,35 +109,19 @@ in
               '';
             };
             initContent = lib.mkBefore ''
-              if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
-                . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-                . /nix/var/nix/profiles/default/etc/profile.d/nix.sh
-              fi
-
-              # Define variables for directories
-              export PATH=$HOME/.pnpm-packages/bin:$HOME/.pnpm-packages:$PATH
-              export PATH=$HOME/.npm-packages/bin:$HOME/bin:$PATH
-              export PATH=$HOME/.local/share/bin:$PATH
-
-              # Remove history data we don't want to see
-              export HISTIGNORE="pwd:ls:cd"
-
-              # code is my editor
-              export ALTERNATE_EDITOR=""
-              export EDITOR="code"
-              export VISUAL="code"
-
               # nix shortcuts
               shell() {
-                  nix-shell '<nixpkgs>' -A "$1"
+                if (( $# != 1 )); then
+                  echo "Usage: shell <package>"
+                  return 1
+                fi
+
+                nix shell "nixpkgs#$1"
               }
 
               # pnpm is a javascript package manager
               alias pn=pnpm
               alias px=pnpx
-
-              # Use difftastic, syntax-aware diffing
-              alias diff=difft
 
               # Always color ls and group directories
               alias ls='ls --color=auto'
@@ -144,8 +138,8 @@ in
             };
             settings = {
               user = {
-                name = name;
-                email = email;
+                name = hostProfile.git.name;
+                email = hostProfile.git.email;
               };
               init.defaultBranch = "main";
               core = {
@@ -172,7 +166,6 @@ in
               "" General
               set number
               set history=1000
-              set nocompatible
               set modelines=0
               set encoding=utf-8
               set scrolloff=3
@@ -193,12 +186,9 @@ in
               set nobackup
               set nowritebackup
               set noswapfile
-              set backupdir=~/.config/vim/backups
-              set directory=~/.config/vim/swap
 
               " Relative line numbers for easy movement
               set relativenumber
-              set rnu
 
               "" Whitespace rules
               set tabstop=8
@@ -211,8 +201,6 @@ in
               set gdefault
 
               "" Statusbar
-              set nocompatible " Disable vi-compatibility
-              set laststatus=2 " Always show the statusline
               let g:airline_theme='bubblegum'
               let g:airline_powerline_fonts = 1
 
@@ -226,9 +214,7 @@ in
 
               "" File-type highlighting and configuration
               syntax on
-              filetype on
-              filetype plugin on
-              filetype indent on
+              filetype plugin indent on
 
               "" Paste from clipboard
               nnoremap <Leader>, "+gP
@@ -268,9 +254,6 @@ in
               let g:startify_bookmarks = [
                 \ '~/.local/share/src',
                 \ ]
-
-              let g:airline_theme='bubblegum'
-              let g:airline_powerline_fonts = 1
             '';
           };
           ssh = {
@@ -288,14 +271,14 @@ in
                 UserKnownHostsFile = "~/.ssh/known_hosts";
               };
 
-              "github.com" = {
+              "${hostProfile.ssh.github.host}" = {
                 IdentitiesOnly = true;
-                IdentityFile = "/Users/${user}/.ssh/github";
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.github.identityFile}";
               };
 
-              "electricpeak.net" = {
+              "${hostProfile.ssh.electricpeak.host}" = {
                 IdentitiesOnly = true;
-                IdentityFile = "/Users/${user}/.ssh/electricpeak";
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}";
               };
             };
           };
@@ -361,20 +344,6 @@ in
               bind-key -n M-j select-pane -D
               bind-key -n M-l select-pane -R
 
-              # Smart pane switching with awareness of Vim splits.
-              # This is copy paste from https://github.com/christoomey/vim-tmux-navigator
-              is_vim="ps -o state= -o comm= -t '#{pane_tty}' \\
-                | grep -iqE '^[^TXZ ]+ +(\\\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
-              bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h'  'select-pane -L'
-              bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j'  'select-pane -D'
-              bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k'  'select-pane -U'
-              bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l'  'select-pane -R'
-              tmux_version='$(tmux -V | sed -En "s/^tmux ([0-9]+(.[0-9]+)?).*/\\1/p")'
-              if-shell -b '[ "$(echo "$tmux_version < 3.0" | bc)" = 1 ]' \\
-                "bind-key -n 'C-\\\\' if-shell \\\"$is_vim\\\" 'send-keys C-\\\\'  'select-pane -l'"
-              if-shell -b '[ "$(echo "$tmux_version >= 3.0" | bc)" = 1 ]' \\
-                "bind-key -n 'C-\\\\' if-shell \\\"$is_vim\\\" 'send-keys C-\\\\\\\\'  'select-pane -l'"
-
               bind-key -T copy-mode-vi 'C-h' select-pane -L
               bind-key -T copy-mode-vi 'C-j' select-pane -D
               bind-key -T copy-mode-vi 'C-k' select-pane -U
@@ -388,8 +357,8 @@ in
             profiles.default = {
               # Optional: You can also include user settings here
               userSettings = {
+                "[rust]"."editor.defaultFormatter" = "rust-lang.rust-analyzer";
                 "editor.formatOnSave" = true;
-                "rust.editor.defaultFormatter" = "rust-lang.rust-analyzer";
                 "rust-analyzer.checkOnSave" = true;
                 "rust-analyzer.check.command" = "clippy";
                 "workbench.colorTheme" = "Gruvbox Dark Medium";
@@ -403,12 +372,6 @@ in
                 "editor.fontSize" = 14;
                 "editor.fontLigatures" = true;
                 "editor.fontWeight" = "400";
-                "terminal.integrated.profiles.osx" = {
-                  "iTerm2" = {
-                    "path" = "iterm2";
-                    "args" = [ ];
-                  };
-                };
               };
 
               extensions = with pkgs.vscode-marketplace; [
@@ -421,22 +384,6 @@ in
           };
         };
 
-        # Marked broken Oct 20, 2022 check later to remove this
-        # https://github.com/nix-community/home-manager/issues/3344
-        manual.manpages.enable = false;
       };
-  };
-
-  # Fully declarative dock using the latest from Nix Store
-  local = {
-    dock = {
-      enable = true;
-      username = user;
-      entries = [
-        # { path = "/Applications/Slack.app/"; }
-        # { path = "/System/Applications/Messages.app/"; }
-        # { path = "/Applications/iTerm.app/"; }
-      ];
-    };
   };
 }

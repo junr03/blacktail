@@ -6,6 +6,12 @@ repos:
         entry: nixfmt
         language: system
         files: '\.nix$'
+      - id: shellcheck
+        name: Lint shell scripts with ShellCheck
+        entry: shellcheck
+        language: system
+        files: '^apps/'
+        types: [shell]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:

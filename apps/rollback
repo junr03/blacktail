@@ -1,24 +1,29 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-GREEN='\033[1;32m'
-YELLOW='\033[1;33m'
-RED='\033[1;31m'
-NC='\033[0m'
+readonly GREEN='\033[1;32m'
+readonly YELLOW='\033[1;33m'
+readonly RED='\033[1;31m'
+readonly NC='\033[0m'
+readonly DARWIN_REBUILD="/run/current-system/sw/bin/darwin-rebuild"
 
-FLAKE="macos"
-
-echo "${YELLOW}Available generations:${NC}"
-/run/current-system/sw/bin/darwin-rebuild --list-generations
-
-echo "${YELLOW}Enter the generation number for rollback:${NC}"
-read GEN_NUM
-
-if [ -z "$GEN_NUM" ]; then
-  echo "${RED}No generation number entered. Aborting rollback.${NC}"
+if [[ ! -x "${DARWIN_REBUILD}" ]]; then
+  printf '%b\n' "${RED}No active nix-darwin installation found.${NC}"
   exit 1
 fi
 
-echo "${YELLOW}Rolling back to generation $GEN_NUM...${NC}"
-/run/current-system/sw/bin/darwin-rebuild switch --flake .#$FLAKE --switch-generation $GEN_NUM
+printf '%b\n' "${YELLOW}Available generations:${NC}"
+"${DARWIN_REBUILD}" --list-generations
 
-echo "${GREEN}Rollback to generation $GEN_NUM complete!${NC}"
+printf '%b\n' "${YELLOW}Enter the generation number for rollback:${NC}"
+read -r generation
+
+if [[ ! "${generation}" =~ ^[0-9]+$ ]]; then
+  printf '%b\n' "${RED}Enter a numeric generation number.${NC}"
+  exit 1
+fi
+
+printf '%b\n' "${YELLOW}Rolling back to generation ${generation}...${NC}"
+sudo "${DARWIN_REBUILD}" switch --switch-generation "${generation}"
+
+printf '%b\n' "${GREEN}Rollback to generation ${generation} complete.${NC}"

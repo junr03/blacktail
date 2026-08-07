@@ -14,13 +14,5 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - uses: actions/cache@v3
-        with:
-          path: /nix/store
-          key: ${{ runner.os }}-nix-${{ hashFiles('flake.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-nix-
       - name: Nix flake check
-        run: nix flake check --print-build-logs
-      - name: Build configuration
-        run: nix run .#build
+        run: nix flake check --all-systems --print-build-logs
