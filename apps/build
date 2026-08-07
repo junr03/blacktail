@@ -8,10 +8,15 @@ NC='\033[0m'
 SYSTEM_TYPE="aarch64-darwin"
 FLAKE_SYSTEM="darwinConfigurations.${SYSTEM_TYPE}.system"
 
+if [ -z "${BLACKTAIL_PRIMARY_USER:-}" ] && [ -f ./.blacktail.local ]; then
+  . ./.blacktail.local
+fi
+export BLACKTAIL_PRIMARY_USER
+
 export NIXPKGS_ALLOW_UNFREE=1
 
 echo "${YELLOW}Starting build...${NC}"
-nix --extra-experimental-features 'nix-command flakes' build .#$FLAKE_SYSTEM $@
+nix --extra-experimental-features 'nix-command flakes' build --impure .#$FLAKE_SYSTEM "$@"
 
 echo "${YELLOW}Cleaning up...${NC}"
 unlink ./result

@@ -49,7 +49,14 @@
       self,
     }@inputs:
     let
-      user = "junr03";
+      localPrimaryUser = builtins.getEnv "BLACKTAIL_PRIMARY_USER";
+      primaryUser =
+        if localPrimaryUser == "" then
+          "junr03"
+        else if builtins.match "[a-zA-Z_][a-zA-Z0-9._-]*" localPrimaryUser != null then
+          localPrimaryUser
+        else
+          throw "BLACKTAIL_PRIMARY_USER must be a valid macOS short username";
       darwinSystems = [ "aarch64-darwin" ];
       forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
       devShell =
@@ -97,7 +104,9 @@
         system:
         darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = inputs;
+          specialArgs = inputs // {
+            inherit primaryUser;
+          };
           modules = [
             {
               nixpkgs.overlays = [
@@ -110,7 +119,7 @@
             nix-homebrew.darwinModules.nix-homebrew
             {
               nix-homebrew = {
-                inherit user;
+                user = primaryUser;
                 enable = true;
                 taps = {
                   "homebrew/homebrew-core" = homebrew-core;
