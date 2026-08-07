@@ -13,5 +13,4 @@ Consolidated configuration for macOS systems.
 ├── files.nix              # User-specific static configuration files
 ├── home-manager.nix       # User programs and Home Manager setup
 ├── packages.nix           # Packages to install
-├── secrets.nix            # Secrets configuration
 ```

@@ -2,7 +2,6 @@
   description = "Nix configuration for Mac Clients";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    agenix.url = "github:ryantm/agenix";
     home-manager.url = "github:nix-community/home-manager";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
@@ -37,7 +36,6 @@
   };
   outputs =
     {
-      agenix,
       darwin,
       gallatin,
       home-manager,
@@ -66,8 +64,6 @@
               nativeBuildInputs = with pkgs; [
                 bashInteractive
                 git
-                age
-                age-plugin-yubikey
               ];
               shellHook = with pkgs; ''
                 export EDITOR=code

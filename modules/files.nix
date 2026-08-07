@@ -12,11 +12,6 @@ let
   electricpeakPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHVuvU35QsaFextBWDvK/Bsz+2YGwpMO+J4dFZMukuj7 admin@electricpeak.net";
 in
 {
-  ".age" = {
-    source = ../secrets;
-    recursive = true;
-  };
-
   ".ssh/github.pub" = {
     text = githubPublicKey;
   };

@@ -1,6 +1,6 @@
 # nix-configs
 
-Configuration for provisioning macOS machines with [Nix](https://nixos.org), [`nix-darwin`](https://github.com/LnL7/nix-darwin), and [`home-manager`](https://github.com/nix-community/home-manager).  Secrets are managed with [`agenix`](https://github.com/ryantm/agenix).
+Configuration for provisioning macOS machines with [Nix](https://nixos.org), [`nix-darwin`](https://github.com/LnL7/nix-darwin), and [`home-manager`](https://github.com/nix-community/home-manager).
 
 ## Repository layout
 
@@ -14,29 +14,6 @@ Configuration for provisioning macOS machines with [Nix](https://nixos.org), [`n
 ```
 
 ## Provisioning a new Mac
-
-1. **Decrypt blacktail keys**
-
-   Download `rage` and `age-plugin-yubikey` and `mv` them to `/usr/local/bin`.
-
-   Decrypt the keys
-
-   ```sh
-   rage -d -i age-yubikey-identity-32739404.txt -o blacktail blacktail.age
-   rage -d -i age-yubikey-identity-32739404.txt -o blacktail.pub blacktail.pub.age
-   ```
-
-   ```sh
-   rm /usr/local/bin/rage
-   rm /usr/local/bin/age-yubikey-plugin
-   ```
-
-   Move the keys to `~/.ssh` from iCloud
-
-   ```sh
-   mv /Users/junr03/Library/Mobile Documents/com~apple~CloudDocs/gallatin/blacktail/blacktail ~/.ssh/
-   mv /Users/junr03/Library/Mobile Documents/com~apple~CloudDocs/gallatin/blacktail/blacktail.pub ~/.ssh/
-   ```
 
 1. **Install Nix**
 

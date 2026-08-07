@@ -15,9 +15,7 @@ with pkgs;
     doCheck = false;
   }))
 
-  # Encryption and security tools
-  age
-  age-plugin-yubikey
+  # Security tools
   gnupg
   libfido2
 

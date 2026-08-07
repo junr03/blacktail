@@ -1,5 +1,4 @@
 {
-  agenix,
   gallatin,
   config,
   pkgs,
@@ -37,10 +36,8 @@ let
 in
 {
   imports = [
-    ./secrets.nix
     ./home-manager.nix
     ./.
-    agenix.darwinModules.default
   ];
 
   # Setup user, packages, programs
@@ -78,8 +75,6 @@ in
   environment.systemPackages =
     with pkgs;
     [
-      agenix.packages."${pkgs.stdenv.hostPlatform.system}".default
-      age-plugin-yubikey
       (callPackage "${gallatin}/rename-picture.nix" { })
     ]
     ++ (import ./packages.nix { inherit pkgs; });
