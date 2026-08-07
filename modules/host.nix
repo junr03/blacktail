@@ -2,10 +2,11 @@
   gallatin,
   config,
   pkgs,
+  primaryUser,
   ...
 }:
 let
-  user = "junr03";
+  user = primaryUser;
 in
 {
   imports = [

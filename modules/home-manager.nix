@@ -3,10 +3,11 @@
   pkgs,
   lib,
   home-manager,
+  primaryUser,
   ...
 }:
 let
-  user = "junr03";
+  user = primaryUser;
   name = "Jose Ulises Nino Rivera";
   email = "junr03@users.noreply.github.com";
   userFiles = import ./files.nix { inherit user config pkgs; };

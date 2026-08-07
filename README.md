@@ -31,6 +31,16 @@ Configuration for provisioning macOS machines with [Nix](https://nixos.org), [`n
    cd blacktail
    ```
 
+1. **Set this Mac's primary user**
+
+   Blacktail needs the macOS short username for the account it will manage. Create the local configuration with your current username:
+
+   ```sh
+   printf 'BLACKTAIL_PRIMARY_USER=%s\n' "$(id -un)" > .blacktail.local
+   ```
+
+   If you are provisioning another account, replace `$(id -un)` with that account's short username. Git ignores `.blacktail.local`, and the build commands load it automatically.
+
 1. **Build and activate the system**
 
    ```sh
