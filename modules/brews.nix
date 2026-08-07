@@ -9,6 +9,5 @@ _: [
   "watch"
   "worktrunk"
   "xcodegen"
-  "ykman"
   "yq"
 ]
