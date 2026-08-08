@@ -1,12 +1,11 @@
 {
   gallatin,
-  config,
+  hostProfile,
   pkgs,
-  primaryUser,
   ...
 }:
 let
-  user = primaryUser;
+  user = hostProfile.username;
 in
 {
   imports = [
@@ -18,6 +17,7 @@ in
     enable = true;
 
     customSettings = {
+      sandbox = true;
       trusted-users = [
         "root"
         "@admin"
@@ -27,7 +27,10 @@ in
         "https://nix-community.cachix.org"
         "https://cache.nixos.org"
       ];
-      trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
       experimental-features = [
         "nix-command"
         "flakes"
@@ -47,30 +50,12 @@ in
 
   # Font configuration
   fonts.packages = with pkgs; [
+    dejavu_fonts
     fira-code
+    font-awesome
+    meslo-lgs-nf
     nerd-fonts.fira-code
   ];
-
-  # System activation scripts
-  system.activationScripts = {
-    # Install Rosetta 2 early, before Homebrew
-    installRosetta = {
-      text = ''
-        echo "=== Installing Rosetta 2 ==="
-        if ! /usr/bin/pgrep -q oahd; then
-          echo "Installing Rosetta 2..."
-          sudo softwareupdate --install-rosetta --agree-to-license
-          echo "Rosetta 2 installed"
-        else
-          echo "Rosetta 2 is already installed"
-        fi
-      '';
-      deps = [
-        "users"
-        "groups"
-      ];
-    };
-  };
 
   system = {
     checks.verifyNixPath = false;

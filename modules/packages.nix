@@ -11,22 +11,15 @@ with pkgs;
   wget
   zip
   gh
-  (pre-commit.overrideAttrs (_: {
-    doCheck = false;
-  }))
+  pre-commit
 
   # Security tools
   gnupg
   libfido2
 
   # Media-related packages
-  dejavu_fonts
   ffmpeg
   fd
-  fira-code
-  nerd-fonts.fira-code
-  font-awesome
-  meslo-lgs-nf
 
   # Node.js development tools
   prettier
@@ -34,14 +27,13 @@ with pkgs;
 
   # Text and terminal utilities
   ripgrep
-  tmux
-  zsh-powerlevel10k
   nixfmt
+  shellcheck
+  tmuxinator
 
   # Python packages
   python3
   virtualenv
-  dockutil
 
   # Rust packages
   (pkgs.rust-bin.stable.latest.default.override {

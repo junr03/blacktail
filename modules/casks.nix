@@ -1,7 +1,6 @@
 _: [
   "1password"
   "1password-cli"
-  "bambu-studio"
   "chatgpt"
   "copilot-money"
   "docker-desktop"

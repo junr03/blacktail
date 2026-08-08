@@ -2,7 +2,10 @@
   description = "Nix configuration for Mac Clients";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,6 +17,7 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
     nix-vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
@@ -56,16 +60,10 @@
       self,
     }@inputs:
     let
-      localPrimaryUser = builtins.getEnv "BLACKTAIL_PRIMARY_USER";
-      primaryUser =
-        if localPrimaryUser == "" then
-          "junr03"
-        else if builtins.match "[a-zA-Z_][a-zA-Z0-9._-]*" localPrimaryUser != null then
-          localPrimaryUser
-        else
-          throw "BLACKTAIL_PRIMARY_USER must be a valid macOS short username";
       darwinSystems = [ "aarch64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
+      hostProfile = import ./hosts/junr03.nix;
+      toolSystems = darwinSystems ++ [ "x86_64-linux" ];
+      forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =
         system:
         let
@@ -75,44 +73,40 @@
           default =
             with pkgs;
             mkShell {
-              nativeBuildInputs = with pkgs; [
+              packages = [
                 bashInteractive
                 git
+                nixfmt
+                pre-commit
+                shellcheck
               ];
-              shellHook = with pkgs; ''
-                export EDITOR=code
-              '';
             };
         };
-      mkApp = scriptName: system: {
-        type = "app";
-        program = "${
-          (nixpkgs.legacyPackages.${system}.writeScriptBin scriptName ''
-            #!/usr/bin/env bash
-            PATH=${nixpkgs.legacyPackages.${system}.git}/bin:$PATH
-            echo "Running ${scriptName} for ${system}"
-            exec ${self}/apps/${scriptName}
-          '')
-        }/bin/${scriptName}";
-      };
+      mkApp =
+        scriptName: system:
+        let
+          app = nixpkgs.legacyPackages.${system}.writeShellApplication {
+            name = scriptName;
+            text = ''
+              exec ${self}/apps/${scriptName} "$@"
+            '';
+          };
+        in
+        {
+          type = "app";
+          program = "${app}/bin/${scriptName}";
+        };
       mkDarwinApps = system: {
-        "apply" = mkApp "apply" system;
-        "build" = mkApp "build" system;
-        "build-switch" = mkApp "build-switch" system;
-        "rollback" = mkApp "rollback" system;
+        build = mkApp "build" system;
+        build-switch = mkApp "build-switch" system;
+        rollback = mkApp "rollback" system;
       };
-    in
-    {
-      devShells = forAllSystems devShell;
-      apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
-
       darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (
         system:
         darwin.lib.darwinSystem {
           inherit system;
           specialArgs = inputs // {
-            inherit primaryUser;
+            inherit hostProfile;
           };
           modules = [
             {
@@ -122,12 +116,12 @@
               ];
             }
             determinate.darwinModules.default
-            ./modules/host.nix # Load host first to ensure Rosetta activation script runs before Homebrew
+            ./modules/host.nix
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
             {
               nix-homebrew = {
-                user = primaryUser;
+                user = hostProfile.username;
                 enable = true;
                 taps = {
                   "homebrew/homebrew-core" = homebrew-core;
@@ -136,11 +130,20 @@
                   "hashicorp/homebrew-tap" = hashicorp-tap;
                 };
                 mutableTaps = false;
-                autoMigrate = true;
               };
             }
           ];
         }
       );
+    in
+    {
+      inherit darwinConfigurations;
+
+      apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
+      checks = nixpkgs.lib.genAttrs darwinSystems (system: {
+        system = darwinConfigurations.${system}.system;
+      });
+      devShells = forAllToolSystems devShell;
+      formatter = forAllToolSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
