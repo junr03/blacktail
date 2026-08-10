@@ -6,14 +6,30 @@ readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
 readonly NIX="/nix/var/nix/profiles/default/bin/nix"
-readonly SYSTEM_TYPE="aarch64-darwin"
-readonly FLAKE_SYSTEM="darwinConfigurations.${SYSTEM_TYPE}.system"
 
-printf '%b\n' "${YELLOW}Starting build...${NC}"
+if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" && -f ./.blacktail.local ]]; then
+  # shellcheck disable=SC1091
+  source ./.blacktail.local
+fi
+
+if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" ]]; then
+  printf '%s\n' "Set BLACKTAIL_HOST_PROFILE to a configured profile such as personal or work." >&2
+  exit 1
+fi
+
+if [[ ! "${BLACKTAIL_HOST_PROFILE}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  printf '%s\n' "BLACKTAIL_HOST_PROFILE contains invalid characters." >&2
+  exit 1
+fi
+
+readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
+readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
+
+printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
 system_path=$("${NIX}" build --no-link --print-out-paths ".#${FLAKE_SYSTEM}" "$@")
 
-printf '%b\n' "${YELLOW}Switching to the new generation...${NC}"
+printf '%b\n' "${YELLOW}Switching to the ${HOST_PROFILE} configuration...${NC}"
 # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake ".#${SYSTEM_TYPE}" "$@"
+sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake ".#${HOST_PROFILE}" "$@"
 
 printf '%b\n' "${GREEN}Switch complete.${NC}"
