@@ -61,7 +61,10 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      hostProfile = import ./hosts/junr03.nix;
+      hostProfiles = {
+        personal = import ./hosts/junr03.nix;
+        work = import ./hosts/jose-rivera.nix;
+      };
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =
@@ -101,10 +104,10 @@
         build-switch = mkApp "build-switch" system;
         rollback = mkApp "rollback" system;
       };
-      darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (
-        system:
+      mkDarwinConfiguration =
+        hostProfile:
         darwin.lib.darwinSystem {
-          inherit system;
+          system = "aarch64-darwin";
           specialArgs = inputs // {
             inherit hostProfile;
           };
@@ -133,16 +136,16 @@
               };
             }
           ];
-        }
-      );
+        };
+      darwinConfigurations = nixpkgs.lib.mapAttrs (_: mkDarwinConfiguration) hostProfiles;
     in
     {
       inherit darwinConfigurations;
 
       apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
-      checks = nixpkgs.lib.genAttrs darwinSystems (system: {
-        system = darwinConfigurations.${system}.system;
-      });
+      checks = nixpkgs.lib.genAttrs darwinSystems (
+        _: nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
+      );
       devShells = forAllToolSystems devShell;
       formatter = forAllToolSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
