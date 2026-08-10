@@ -47,7 +47,7 @@ git clone https://github.com/junr03/blacktail.git
 cd blacktail
 ```
 
-The active profile is [`hosts/junr03.nix`](hosts/junr03.nix). Review its macOS username, Git identity, public SSH keys, and SSH identity filenames before the first activation. To use this configuration for another account, add a separate profile under `hosts/` and select it with `hostProfile` in `flake.nix`; do not put machine-specific identity into the shared modules.
+The active profile is [`hosts/jose-rivera.nix`](hosts/jose-rivera.nix). Review its macOS username, Git identity, public SSH keys, SSH identity filenames, and remote usernames before the first activation. To use this configuration for another account, add a separate profile under `hosts/` and select it with `hostProfile` in `flake.nix`; do not put machine-specific identity into the shared modules.
 
 The legacy `.blacktail.local` file remains ignored for existing checkouts, but builds no longer read it.
 

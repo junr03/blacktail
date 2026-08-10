@@ -61,7 +61,7 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      hostProfile = import ./hosts/junr03.nix;
+      hostProfile = import ./hosts/jose-rivera.nix;
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =

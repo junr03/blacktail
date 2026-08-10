@@ -279,6 +279,7 @@ in
               "${hostProfile.ssh.electricpeak.host}" = {
                 IdentitiesOnly = true;
                 IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}";
+                User = hostProfile.ssh.electricpeak.user;
               };
             };
           };
