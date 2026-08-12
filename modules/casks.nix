@@ -7,6 +7,7 @@ _: [
   "ghostty"
   "google-drive"
   "obsidian"
+  "okta-verify"
   "postico"
   "raycast"
   "slack"
