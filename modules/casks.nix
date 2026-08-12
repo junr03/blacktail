@@ -3,7 +3,6 @@ _: [
   "1password-cli"
   "chatgpt"
   "copilot-money"
-  "docker-desktop"
   "ghostty"
   "google-drive"
   "obsidian"
