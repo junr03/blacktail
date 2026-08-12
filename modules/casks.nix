@@ -4,6 +4,7 @@ _: [
   "adobe-creative-cloud"
   "chatgpt"
   "copilot-money"
+  "docker-desktop"
   "ghostty"
   "google-drive"
   "obsidian"
