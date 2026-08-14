@@ -13,7 +13,7 @@ _: [
   "raycast"
   "slack"
   "tailscale-app"
-  "todoist"
+  "todoist-app"
   "zed"
   "zerotier-one"
   "zoom"
