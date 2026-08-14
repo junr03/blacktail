@@ -42,6 +42,8 @@ in
     # This message is safe to ignore.
 
     masApps = {
+      "1password-for-safari" = 1569813296;
+      "infuse" = 1136220934;
       "photomator" = 1444636541;
     };
   };
