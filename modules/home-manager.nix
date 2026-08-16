@@ -8,7 +8,7 @@
 let
   user = hostProfile.username;
   userHome = "/Users/${user}";
-  userFiles = import ./files.nix { inherit config hostProfile user; };
+  userFiles = import ./files.nix { inherit config user; };
 in
 {
   users.users.${user} = {
