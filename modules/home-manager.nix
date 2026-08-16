@@ -43,6 +43,7 @@ in
 
     masApps = {
       "1password-for-safari" = 1569813296;
+      "copilot-money" = 1447330651;
       "infuse" = 1136220934;
       "photomator" = 1444636541;
     };
