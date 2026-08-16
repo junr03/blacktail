@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly GREEN='\033[1;32m'
+readonly RED='\033[1;31m'
+readonly NC='\033[0m'
+
+readonly SSH_DIR="${BLACKTAIL_SSH_DIR:-${HOME}/.ssh}"
+readonly KEY_NAMES=(github electricpeak)
+temporary_directory=''
+
+cleanup() {
+  if [[ -n "${temporary_directory}" && -d "${temporary_directory}" ]]; then
+    rm -rf "${temporary_directory}"
+  fi
+}
+
+trap cleanup EXIT
+
+setup_ssh_directory() {
+  umask 077
+  mkdir -p "${SSH_DIR}"
+  chmod 700 "${SSH_DIR}"
+}
+
+remove_obsolete_home_manager_link() {
+  local public_key_path="$1"
+  local link_target
+
+  if [[ ! -L "${public_key_path}" ]]; then
+    return
+  fi
+
+  link_target="$(readlink "${public_key_path}")"
+  if [[ "${link_target}" == /nix/store/* ]]; then
+    rm "${public_key_path}"
+  else
+    printf '%bCannot replace unexpected public-key symlink: %s%b\n' "${RED}" "${public_key_path}" "${NC}" >&2
+    return 1
+  fi
+}
+
+public_key_matches_private_key() {
+  local key_path="$1"
+  local public_key_path="$2"
+  local private_fingerprint
+  local public_fingerprint
+
+  private_fingerprint="$(ssh-keygen -y -f "${key_path}" | ssh-keygen -lf - | awk '{print $2}')"
+  public_fingerprint="$(ssh-keygen -lf "${public_key_path}" | awk '{print $2}')"
+  [[ "${private_fingerprint}" == "${public_fingerprint}" ]]
+}
+
+write_public_key() {
+  local key_path="$1"
+  local public_key_path="$2"
+
+  ssh-keygen -q -y -f "${key_path}" >"${public_key_path}"
+  chmod 644 "${public_key_path}"
+}
+
+generate_key() {
+  local key_name="$1"
+  local key_path="${SSH_DIR}/${key_name}"
+  local public_key_path="${key_path}.pub"
+
+  if [[ -f "${key_path}" ]]; then
+    remove_obsolete_home_manager_link "${public_key_path}"
+    if [[ -e "${public_key_path}" ]]; then
+      if ! public_key_matches_private_key "${key_path}" "${public_key_path}"; then
+        printf '%b%s and %s do not match.%b\n' "${RED}" "${key_path}" "${public_key_path}" "${NC}" >&2
+        return 1
+      fi
+      printf '%bKeeping existing %s key pair.%b\n' "${GREEN}" "${key_name}" "${NC}"
+    else
+      write_public_key "${key_path}" "${public_key_path}"
+      printf '%bRestored the missing %s public key.%b\n' "${GREEN}" "${key_name}" "${NC}"
+    fi
+    return
+  fi
+
+  if [[ -L "${key_path}" ]]; then
+    printf '%bCannot create %s: %s is a symlink.%b\n' "${RED}" "${key_name}" "${key_path}" "${NC}" >&2
+    printf '%s\n' "Remove or replace the symlink, then run create-keys again." >&2
+    return 1
+  fi
+
+  if [[ -e "${public_key_path}" ]]; then
+    remove_obsolete_home_manager_link "${public_key_path}"
+  fi
+  if [[ -e "${public_key_path}" ]]; then
+    printf '%bCannot create %s: a public key already exists without its private key.%b\n' "${RED}" "${key_name}" "${NC}" >&2
+    printf '%s\n' "Restore the matching private key or remove the public key, then run create-keys again." >&2
+    return 1
+  fi
+
+  temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/blacktail-create-keys.XXXXXX")"
+  ssh-keygen -q -t ed25519 -f "${temporary_directory}/${key_name}" -N ""
+  install -m 600 "${temporary_directory}/${key_name}" "${key_path}"
+  install -m 644 "${temporary_directory}/${key_name}.pub" "${public_key_path}"
+  cleanup
+  temporary_directory=''
+  printf '%bGenerated %s key pair.%b\n' "${GREEN}" "${key_name}" "${NC}"
+}
+
+setup_ssh_directory
+for key_name in "${KEY_NAMES[@]}"; do
+  generate_key "${key_name}"
+done
+
+printf '%bSSH key setup complete.%b\n' "${GREEN}" "${NC}"
