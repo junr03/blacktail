@@ -101,6 +101,8 @@ generate_key() {
   cleanup
   temporary_directory=''
   printf '%bGenerated %s key pair.%b\n' "${GREEN}" "${key_name}" "${NC}"
+  printf '%s\n' "Public key (${key_name}):"
+  cat "${public_key_path}"
 }
 
 setup_ssh_directory
