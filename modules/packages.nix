@@ -11,6 +11,7 @@ with pkgs;
   wget
   zip
   gh
+  terraform
   pre-commit
 
   # Security tools
