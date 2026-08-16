@@ -59,6 +59,10 @@ in
         ...
       }:
       {
+        # Home Manager's generated manpage uses nixosOptionsDoc, which emits
+        # a Nix 2.34 string-context warning while creating options.json.
+        manual.manpages.enable = false;
+
         home = {
           file = userFiles;
           sessionPath = [
