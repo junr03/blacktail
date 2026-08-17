@@ -14,7 +14,7 @@ select [
   { name = "1password-cli"; }
   { name = "adobe-creative-cloud"; }
   { name = "chatgpt"; }
-  { name = "docker-desktop"; profiles = ["work"]; }
+  { name = "docker-desktop"; profiles = [ "work" ]; }
   { name = "ghostty"; }
   { name = "google-drive"; }
   { name = "obsidian"; }
@@ -25,6 +25,6 @@ select [
   { name = "tailscale-app"; }
   { name = "todoist-app"; }
   { name = "zed"; }
-  { name = "zerotier-one"; profiles = ["work"]; }
+  { name = "zerotier-one"; profiles = [ "work" ]; }
   { name = "zoom"; }
 ]
