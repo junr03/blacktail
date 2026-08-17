@@ -19,7 +19,6 @@ select {
     { name = wget; }
     { name = zip; }
     { name = gh; }
-    { name = terraform; }
     { name = pre-commit; }
     { name = nil; }
 

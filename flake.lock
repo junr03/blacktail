@@ -171,22 +171,6 @@
         "url": "https://flakehub.com/f/cachix/git-hooks.nix/0.1.941"
       }
     },
-    "hashicorp-tap": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1785845491,
-        "narHash": "sha256-6VsYiqbaVRiloyQMRxXJiDJnnvShddgnwFeoXY8FiQg=",
-        "owner": "hashicorp",
-        "repo": "homebrew-tap",
-        "rev": "b7f5123d0d45cca02dc9b09e837f8b112fcd9e32",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hashicorp",
-        "repo": "homebrew-tap",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -395,7 +379,6 @@
         "darwin": "darwin",
         "determinate": "determinate",
         "gallatin": "gallatin",
-        "hashicorp-tap": "hashicorp-tap",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",

@@ -34,10 +34,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    hashicorp-tap = {
-      url = "github:hashicorp/homebrew-tap";
-      flake = false;
-    };
     gallatin = {
       url = "github:junr03/gallatin?rev=7281e93b508c432fc2e83aa1c5250fe5ee92f8c9";
       flake = false;
@@ -52,7 +48,6 @@
       homebrew-bundle,
       homebrew-cask,
       homebrew-core,
-      hashicorp-tap,
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
@@ -131,7 +126,6 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
-                  "hashicorp/homebrew-tap" = hashicorp-tap;
                 };
                 mutableTaps = false;
               };
