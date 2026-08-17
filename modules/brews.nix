@@ -5,6 +5,7 @@ _: [
   "go"
   "gptfdisk"
   "jira-cli"
+  "tailscale"
   "watch"
   "worktrunk"
   "xcodegen"

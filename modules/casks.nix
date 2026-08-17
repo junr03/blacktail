@@ -11,7 +11,6 @@ _: [
   "postico"
   "raycast"
   "slack"
-  "tailscale-app"
   "todoist-app"
   "zed"
   "zerotier-one"
