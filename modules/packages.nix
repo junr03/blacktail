@@ -25,6 +25,7 @@ select (
     { name = gh; }
     { name = terraform; }
     { name = pre-commit; }
+    { name = nil; }
 
     # Security tools
     { name = gnupg; }

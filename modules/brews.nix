@@ -10,14 +10,12 @@ let
     );
 in
 select [
-  { name = "argocd"; }
+  { name = "argocd"; profiles = ["work"]; }
   { name = "awscli"; }
   { name = "git-spice"; }
   { name = "go"; }
-  { name = "gptfdisk"; }
-  { name = "jira-cli"; }
+  { name = "jira-cli"; profiles = ["work"]; }
   { name = "watch"; }
   { name = "worktrunk"; }
   { name = "xcodegen"; }
-  { name = "yq"; }
 ]
