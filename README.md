@@ -66,6 +66,19 @@ BLACKTAIL_HOST_PROFILE=personal nix run .#build
 
 Review the selected profile's macOS username, Git identity, SSH identity filenames, and remote usernames before the first activation. To add another Mac, create another profile under `hosts/` and register it in `hostProfiles` in `flake.nix`; do not put machine-specific identity into the shared modules.
 
+Packages are shared by default. Casks, Homebrew formulae, and Nix packages can be limited to a profile by adding a `profiles` list to their entry in `modules/casks.nix`, `modules/brews.nix`, or `modules/packages.nix`. The profile names are the keys in `hostProfiles` (currently `personal` and `work`); an entry is installed when the selected profile is listed. For example:
+
+```nix
+{ name = "some-work-only-cask"; profiles = [ "work" ]; }
+{ name = "some-personal-cask"; profiles = [ "personal" ]; }
+```
+
+Leave `profiles` off to make an entry universal. Nix package entries use `package` instead of `name`:
+
+```nix
+{ package = pkgs.some-package; profiles = [ "work" ]; }
+```
+
 Private keys are not stored in this repository. Generate any missing keys with:
 
 ```sh

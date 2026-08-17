@@ -1,6 +1,7 @@
 {
   config,
   hostProfile,
+  hostProfileName,
   lib,
   pkgs,
   ...
@@ -20,8 +21,14 @@ in
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ./casks.nix { };
-    brews = pkgs.callPackage ./brews.nix { };
+    casks = import ./casks.nix {
+      inherit lib;
+      profile = hostProfileName;
+    };
+    brews = import ./brews.nix {
+      inherit lib;
+      profile = hostProfileName;
+    };
     taps = builtins.attrNames config.nix-homebrew.taps;
 
     onActivation = {
