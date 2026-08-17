@@ -7,7 +7,7 @@ let
   select =
     entries:
     map (entry: entry.package) (
-      lib.filter (entry: !(entry ? profiles) || lib.elem profile entry.profiles) entries
+      lib.filter (entry: !(entry ? tags) || lib.elem profile entry.tags) entries
     );
 in
 select (
