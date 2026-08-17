@@ -4,15 +4,11 @@
   profile,
 }:
 let
-  select =
-    entries:
-    map (entry: entry.name) (
-      lib.filter (entry: !(entry ? profiles) || lib.elem profile entry.profiles) entries
-    );
+  select = (import ./profile-packages.nix { inherit lib; }).select;
 in
-select (
-  with pkgs;
-  [
+select {
+  inherit profile;
+  entries = with pkgs; [
     # General packages for development and system management
     { name = bash-completion; }
     { name = coreutils; }
@@ -57,5 +53,5 @@ select (
     }
     { name = rust-analyzer-unwrapped; }
     { name = pkg-config; }
-  ]
-)
+  ];
+}
