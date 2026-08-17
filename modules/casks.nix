@@ -6,7 +6,7 @@ let
   select =
     entries:
     map (entry: entry.name) (
-      lib.filter (entry: !(entry ? tags) || lib.elem profile entry.tags) entries
+      lib.filter (entry: !(entry ? profiles) || lib.elem profile entry.profiles) entries
     );
 in
 select [

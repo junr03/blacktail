@@ -6,55 +6,55 @@
 let
   select =
     entries:
-    map (entry: entry.package) (
-      lib.filter (entry: !(entry ? tags) || lib.elem profile entry.tags) entries
+    map (entry: entry.name) (
+      lib.filter (entry: !(entry ? profiles) || lib.elem profile entry.profiles) entries
     );
 in
 select (
   with pkgs;
   [
     # General packages for development and system management
-    { package = bash-completion; }
-    { package = coreutils; }
-    { package = killall; }
-    { package = fastfetch; }
-    { package = openssh; }
-    { package = sqlite; }
-    { package = wget; }
-    { package = zip; }
-    { package = gh; }
-    { package = terraform; }
-    { package = pre-commit; }
+    { name = bash-completion; }
+    { name = coreutils; }
+    { name = killall; }
+    { name = fastfetch; }
+    { name = openssh; }
+    { name = sqlite; }
+    { name = wget; }
+    { name = zip; }
+    { name = gh; }
+    { name = terraform; }
+    { name = pre-commit; }
 
     # Security tools
-    { package = gnupg; }
-    { package = libfido2; }
+    { name = gnupg; }
+    { name = libfido2; }
 
     # Media-related packages
-    { package = ffmpeg; }
-    { package = fd; }
+    { name = ffmpeg; }
+    { name = fd; }
 
     # Node.js development tools
-    { package = prettier; }
-    { package = nodejs; }
+    { name = prettier; }
+    { name = nodejs; }
 
     # Text and terminal utilities
-    { package = ripgrep; }
-    { package = nixfmt; }
-    { package = shellcheck; }
-    { package = tmuxinator; }
+    { name = ripgrep; }
+    { name = nixfmt; }
+    { name = shellcheck; }
+    { name = tmuxinator; }
 
     # Python packages
-    { package = python3; }
-    { package = virtualenv; }
+    { name = python3; }
+    { name = virtualenv; }
 
     # Rust packages
     {
-      package = pkgs.rust-bin.stable.latest.default.override {
+      name = pkgs.rust-bin.stable.latest.default.override {
         extensions = [ "rust-src" ];
       };
     }
-    { package = rust-analyzer-unwrapped; }
-    { package = pkg-config; }
+    { name = rust-analyzer-unwrapped; }
+    { name = pkg-config; }
   ]
 )

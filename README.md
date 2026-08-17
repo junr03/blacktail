@@ -66,17 +66,17 @@ BLACKTAIL_HOST_PROFILE=personal nix run .#build
 
 Review the selected profile's macOS username, Git identity, SSH identity filenames, and remote usernames before the first activation. To add another Mac, create another profile under `hosts/` and register it in `hostProfiles` in `flake.nix`; do not put machine-specific identity into the shared modules.
 
-Packages are shared by default. Casks, Homebrew formulae, and Nix packages can be limited to a profile by adding a `tags` list to their entry in `modules/casks.nix`, `modules/brews.nix`, or `modules/packages.nix`. Tags match the profile names from `hostProfiles` (currently `personal` and `work`); an entry is installed when the selected profile is tagged. For example:
+Packages are shared by default. Casks, Homebrew formulae, and Nix packages can be limited to a profile by adding a `profiles` list to their entry in `modules/casks.nix`, `modules/brews.nix`, or `modules/packages.nix`. Profile names match the keys in `hostProfiles` (currently `personal` and `work`); an entry is installed when the selected profile is listed. For example:
 
 ```nix
-{ name = "some-work-only-cask"; tags = [ "work" ]; }
-{ name = "some-personal-cask"; tags = [ "personal" ]; }
+{ name = "some-work-only-cask"; profiles = [ "work" ]; }
+{ name = "some-personal-cask"; profiles = [ "personal" ]; }
 ```
 
-Leave `tags` off to make an entry universal. Nix package entries use `package` instead of `name`:
+Leave `profiles` off to make an entry universal. All entries use `name`, including Nix packages:
 
 ```nix
-{ package = pkgs.some-package; tags = [ "work" ]; }
+{ name = pkgs.some-package; profiles = [ "work" ]; }
 ```
 
 Private keys are not stored in this repository. Generate any missing keys with:
