@@ -13,7 +13,7 @@ select {
     { name = "adobe-creative-cloud"; }
     {
       name = "bluebubbles";
-      profiles = ["personal"];
+      profiles = [ "personal" ];
     }
     { name = "chatgpt"; }
     {
