@@ -106,11 +106,11 @@
         rollback = mkApp "rollback" system;
       };
       mkDarwinConfiguration =
-        hostProfile:
+        hostProfileName: hostProfile:
         darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = inputs // {
-            inherit hostProfile;
+            inherit hostProfile hostProfileName;
           };
           modules = [
             {
@@ -138,7 +138,7 @@
             }
           ];
         };
-      darwinConfigurations = nixpkgs.lib.mapAttrs (_: mkDarwinConfiguration) hostProfiles;
+      darwinConfigurations = nixpkgs.lib.mapAttrs mkDarwinConfiguration hostProfiles;
     in
     {
       inherit darwinConfigurations;
