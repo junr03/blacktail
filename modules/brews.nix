@@ -20,6 +20,7 @@ select {
       name = "jira-cli";
       profiles = [ "work" ];
     }
+    { name = "tailscale"; }
     { name = "watch"; }
     { name = "worktrunk"; }
     { name = "xcodegen"; }
