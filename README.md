@@ -90,6 +90,7 @@ The selected profile expects these files:
 ```text
 ~/.ssh/github
 ~/.ssh/electricpeak
+~/.ssh/devbox (work profile)
 ```
 
 Home Manager manages the SSH configuration; `create-keys` owns the private and public key files.
@@ -101,7 +102,7 @@ ssh-keygen -lf ~/.ssh/github.pub
 ssh-keygen -y -f ~/.ssh/github | ssh-keygen -lf -
 ```
 
-Repeat the check for `electricpeak`.
+Repeat the check for `electricpeak` and `devbox` when using the work profile.
 
 ### 3. Handle the one-time Home Manager migration
 

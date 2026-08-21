@@ -299,6 +299,14 @@ in
                 IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}";
                 User = hostProfile.ssh.electricpeak.user;
               };
+            }
+            // lib.optionalAttrs (hostProfile.ssh ? devbox) {
+              "${hostProfile.ssh.devbox.host}" = {
+                HostName = hostProfile.ssh.devbox.hostName;
+                IdentitiesOnly = true;
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.devbox.identityFile}";
+                User = hostProfile.ssh.devbox.user;
+              };
             };
           };
           tmux = {
