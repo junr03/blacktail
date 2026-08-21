@@ -8,6 +8,13 @@
 
   homeManager.backupFileExtension = "before-nix";
 
+  devbox = {
+    repoPath = "github/cloud";
+    awsProfile = "cloud_zipline_devs_prod";
+    instanceId = "i-0407615d5d40bd7d1";
+    region = "us-west-2";
+  };
+
   ssh = {
     github = {
       host = "github.com";

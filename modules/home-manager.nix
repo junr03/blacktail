@@ -121,6 +121,10 @@ in
                   gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$2" "$1"
                 }; compress_pdf
               '';
+            }
+            // lib.optionalAttrs (hostProfile ? devbox) {
+              # Authenticate and start the work AWS devbox.
+              start-devbox = "(cd ${userHome}/${hostProfile.devbox.repoPath} && bin/auth && ENV_AWS_PROFILE=${hostProfile.devbox.awsProfile} bin/aws ec2 start-instances --region ${hostProfile.devbox.region} --instance-ids ${hostProfile.devbox.instanceId})";
             };
             initContent = lib.mkBefore ''
               # nix shortcuts
