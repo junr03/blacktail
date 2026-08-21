@@ -16,6 +16,12 @@
   };
 
   ssh = {
+    devbox = {
+      host = "devbox";
+      hostName = "devbox_jose_nino_rivera.int.flyzipline.com";
+      identityFile = "devbox";
+      user = "ubuntu";
+    };
     github = {
       host = "github.com";
       identityFile = "github";

@@ -6,7 +6,7 @@ readonly RED='\033[1;31m'
 readonly NC='\033[0m'
 
 readonly SSH_DIR="${BLACKTAIL_SSH_DIR:-${HOME}/.ssh}"
-readonly KEY_NAMES=(github electricpeak)
+readonly KEY_NAMES=(github electricpeak devbox)
 temporary_directory=''
 
 cleanup() {
