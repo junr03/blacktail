@@ -97,7 +97,6 @@
       mkDarwinApps = system: {
         build = mkApp "build" system;
         build-switch = mkApp "build-switch" system;
-        create-keys = mkApp "create-keys" system;
         rollback = mkApp "rollback" system;
       };
       mkDarwinConfiguration =

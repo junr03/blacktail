@@ -79,13 +79,9 @@ Leave `profiles` off to make an entry universal. All entries use `name`, includi
 { name = pkgs.some-package; profiles = [ "work" ]; }
 ```
 
-Private keys are not stored in this repository. Generate any missing keys with:
+Blacktail configures OpenSSH to use the 1Password SSH agent. Before the first activation, open 1Password, go to **Settings > Developer**, and enable **Use the SSH agent**.
 
-```sh
-nix run .#create-keys
-```
-
-The selected profile expects these files:
+Import each existing private key into 1Password as an SSH Key item:
 
 ```text
 ~/.ssh/github
@@ -93,16 +89,26 @@ The selected profile expects these files:
 ~/.ssh/devbox (work profile)
 ```
 
-Home Manager manages the SSH configuration; `create-keys` owns the private and public key files.
+Store the items in a vault available to the agent. By default, 1Password makes keys in the Personal, Private, and Employee vaults available. Configure `~/.config/1Password/ssh/agent.toml` in 1Password if the keys live in another vault.
 
-Existing key pairs are kept. Newly generated public keys are printed by the command so they can be added to the appropriate service. These commands should print the same fingerprint for a key pair:
+Export or download the public key from each 1Password item to the matching path:
+
+```text
+~/.ssh/github.pub
+~/.ssh/electricpeak.pub
+~/.ssh/devbox.pub (work profile)
+```
+
+The public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. Keep the filenames aligned with the selected host profile.
+
+Before removing any local private key, confirm that the imported item has the same fingerprint as the existing key and that the agent lists it:
 
 ```sh
 ssh-keygen -lf ~/.ssh/github.pub
-ssh-keygen -y -f ~/.ssh/github | ssh-keygen -lf -
+SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ssh-add -l
 ```
 
-Repeat the check for `electricpeak` and `devbox` when using the work profile.
+Repeat the fingerprint check for `electricpeak` and `devbox` when using the work profile. Then activate Blacktail and test each connection. Remove the local private-key files only after every connection succeeds through 1Password. Keep the `.pub` files because the SSH configuration uses them to select keys.
 
 ### 3. Handle the one-time Home Manager migration
 
