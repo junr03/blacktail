@@ -18,6 +18,7 @@ select {
     { name = sqlite; }
     { name = wget; }
     { name = zip; }
+    { name = codex; }
     { name = gh; }
     { name = pre-commit; }
     { name = nil; }
