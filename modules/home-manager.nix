@@ -283,6 +283,7 @@ in
                 ForwardAgent = false;
                 AddKeysToAgent = "no";
                 Compression = false;
+                IdentityAgent = ''"${userHome}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
                 ServerAliveInterval = 0;
                 ServerAliveCountMax = 3;
                 HashKnownHosts = true;
@@ -291,12 +292,12 @@ in
 
               "${hostProfile.ssh.github.host}" = {
                 IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.github.identityFile}";
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.github.identityFile}.pub";
               };
 
               "${hostProfile.ssh.electricpeak.host}" = {
                 IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}";
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}.pub";
                 User = hostProfile.ssh.electricpeak.user;
               };
             }
@@ -304,7 +305,7 @@ in
               "${hostProfile.ssh.devbox.host}" = {
                 HostName = hostProfile.ssh.devbox.hostName;
                 IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.devbox.identityFile}";
+                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.devbox.identityFile}.pub";
                 User = hostProfile.ssh.devbox.user;
               };
             };
