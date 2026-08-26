@@ -103,7 +103,7 @@ keys/devbox.pub
 keys/git-signature.pub
 ```
 
-Home Manager installs the public keys required by the selected profile under `~/.ssh`. The public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. It also configures Git to use the `git-signature` public key with 1Password's SSH signer and sign commits by default. A new Mac only needs the Blacktail checkout and access to the matching 1Password SSH Key items.
+Home Manager installs the public keys required by the selected profile under `~/.ssh`. The SSH configuration refers to each key's base filename, and the matching public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. It also configures Git to use the `git-signature` public key with 1Password's SSH signer and sign commits by default. A new Mac only needs the Blacktail checkout and access to the matching 1Password SSH Key items.
 
 Before removing any local private key, confirm that the imported item has the same fingerprint as its checked-in public key and that the agent lists it:
 
