@@ -9,7 +9,14 @@
 let
   user = hostProfile.username;
   userHome = "/Users/${user}";
-  userFiles = import ./files.nix { inherit config user; };
+  userFiles = import ./files.nix {
+    inherit
+      config
+      hostProfile
+      lib
+      user
+      ;
+  };
 in
 {
   users.users.${user} = {
