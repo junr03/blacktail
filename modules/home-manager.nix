@@ -161,6 +161,12 @@ in
             lfs = {
               enable = true;
             };
+            signing = {
+              key = "${userHome}/.ssh/${hostProfile.git.signingKey}.pub";
+              format = "ssh";
+              signer = hostProfile.git.signer;
+              signByDefault = true;
+            };
             settings = {
               user = {
                 name = hostProfile.git.name;
@@ -171,7 +177,6 @@ in
                 editor = "vim";
                 autocrlf = "input";
               };
-              commit.gpgsign = false;
               pull.rebase = true;
               rebase.autoStash = true;
             };

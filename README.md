@@ -90,6 +90,8 @@ Import each existing private key into 1Password as an SSH Key item:
 ~/.ssh/devbox (work profile)
 ```
 
+Create an Ed25519 SSH Key item named `git-signature` for Git commit signing. Keep its private key only in 1Password.
+
 Store the items in a vault available to the agent. By default, 1Password makes keys in the Personal, Private, and Employee vaults available. Configure `~/.config/1Password/ssh/agent.toml` in 1Password if the keys live in another vault.
 
 Blacktail checks in the matching public keys:
@@ -98,9 +100,10 @@ Blacktail checks in the matching public keys:
 keys/github.pub
 keys/electricpeak.pub
 keys/devbox.pub
+keys/git-signature.pub
 ```
 
-Home Manager installs the public keys required by the selected profile under `~/.ssh`. The public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. A new Mac only needs the Blacktail checkout and access to the matching 1Password SSH Key items.
+Home Manager installs the public keys required by the selected profile under `~/.ssh`. The public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. It also configures Git to use the `git-signature` public key with 1Password's SSH signer and sign commits by default. A new Mac only needs the Blacktail checkout and access to the matching 1Password SSH Key items.
 
 Before removing any local private key, confirm that the imported item has the same fingerprint as its checked-in public key and that the agent lists it:
 
@@ -109,7 +112,7 @@ ssh-keygen -lf keys/github.pub
 SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ssh-add -l
 ```
 
-Repeat the fingerprint check for `electricpeak` and `devbox` when using the work profile. Then activate Blacktail and test each connection. Remove the local private-key files only after every connection succeeds through 1Password.
+Repeat the fingerprint check for each selected SSH key, including `git-signature`. Then activate Blacktail, create a test commit, and verify its signature. Remove the local private-key files only after every connection and signing test succeeds through 1Password.
 
 To rotate a key, create or import its replacement in 1Password, add the new public key to the remote service, and replace the matching file under `keys/`. Run the Blacktail checks and activate the new generation before removing the old public key from the remote service. This keeps 1Password, Blacktail, and the remote host aligned without putting private key material in the Nix store.
 
