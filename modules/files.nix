@@ -19,5 +19,8 @@ in
   "${xdg_configHome}/ghostty/config" = {
     source = ./config/ghostty;
   };
+  "${userHome}/.ssh/${hostProfile.git.signingKey}.pub" = {
+    source = ../keys/${hostProfile.git.signingKey}.pub;
+  };
 }
 // sshPublicKeyFiles
