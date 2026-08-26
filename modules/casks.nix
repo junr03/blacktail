@@ -24,7 +24,6 @@ select {
     { name = "google-drive"; }
     { name = "obsidian"; }
     { name = "okta-verify"; }
-    { name = "paseo"; }
     { name = "postico"; }
     { name = "raycast"; }
     { name = "slack"; }
