@@ -36,7 +36,16 @@ in
       inherit lib;
       profile = hostProfileName;
     };
-    taps = builtins.attrNames config.nix-homebrew.taps;
+    taps = map (
+      tap:
+      if tap == "junr03/homebrew-blacktail" then
+        {
+          name = tap;
+          trusted = true;
+        }
+      else
+        tap
+    ) (builtins.attrNames config.nix-homebrew.taps);
 
     onActivation = {
       autoUpdate = false;

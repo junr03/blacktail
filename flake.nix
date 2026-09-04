@@ -125,6 +125,7 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
+                  "junr03/homebrew-blacktail" = self.outPath;
                 };
                 mutableTaps = false;
               };
