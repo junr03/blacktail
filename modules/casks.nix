@@ -22,6 +22,10 @@ select {
     }
     { name = "ghostty"; }
     { name = "google-drive"; }
+    {
+      name = "junr03/homebrew-blacktail/nuphy-io";
+      profiles = [ "personal" ];
+    }
     { name = "obsidian"; }
     { name = "okta-verify"; }
     { name = "postico"; }
