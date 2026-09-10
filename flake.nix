@@ -98,6 +98,7 @@
       mkDarwinApps = system: {
         build = mkApp "build" system;
         build-switch = mkApp "build-switch" system;
+        register_as_ssh_server = mkApp "register_as_ssh_server" system;
         rollback = mkApp "rollback" system;
       };
       mkDarwinConfiguration =

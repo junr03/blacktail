@@ -58,6 +58,7 @@ and Home Manager backup policy before activation. Enable the SSH agent in
 ```sh
 nix run .#build
 nix run .#build-switch
+nix run .#register_as_ssh_server
 nix run .#rollback
 ```
 
@@ -65,6 +66,21 @@ The helpers include the private submodule in the Nix source and use `--no-link`.
 Rollback operates on the current Mac's existing generations. Build does not
 activate the system. Build-switch does, including the existing Homebrew policy
 of upgrading declared applications and uninstalling undeclared packages.
+
+`register_as_ssh_server` is an explicit, idempotent registration command. It
+uses this Mac's `LocalHostName` and Tailscale IPv4 address, creates or reuses an
+Ed25519 SSH Key item named `blacktail-<LocalHostName>` in the `blacktail`
+1Password vault, and opens or updates a PR in `blacktail-sensitive`. The PR
+contains only the public key and SSH host metadata. It never auto-merges.
+
+The generated configuration also makes the custom `blacktail` vault available
+to the 1Password SSH agent. If 1Password does not recognize the new agent
+configuration immediately, lock and unlock 1Password once.
+
+Blacktail activation enables macOS Remote Login for the configured user,
+disables password and keyboard-interactive SSH authentication, and authorizes
+all registered Blacktail public keys. The SSH server listens on macOS's normal
+SSH interfaces; the generated client aliases use Tailscale addresses.
 
 Preserve existing settings before first activation. When a profile sets a
 Home Manager backup extension, inspect those backups after migration before
