@@ -1,0 +1,3 @@
+[submodule "private-config"]
+	path = private-config
+	url = https://github.com/junr03/blacktail-sensitive.git

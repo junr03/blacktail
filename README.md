@@ -1,186 +1,121 @@
 # Blacktail
 
-Declarative macOS configuration built with [Determinate Nix](https://docs.determinate.systems), [nix-darwin](https://github.com/nix-darwin/nix-darwin), and [Home Manager](https://github.com/nix-community/home-manager).
+Declarative macOS configuration built with Determinate Nix, nix-darwin, and
+Home Manager. Shared modules and tooling live here. Actual machine profiles
+live in the private `blacktail-sensitive` repository. Credentials stay in
+1Password.
 
-## Repository layout
+## Layout
 
-```text
-.
-├── apps/                # build, switch, and rollback helpers
-├── hosts/               # machine and user-specific profiles
-├── keys/                # public SSH keys installed by Home Manager
-├── modules/             # shared macOS, Homebrew, and Home Manager configuration
-├── flake.nix
-└── flake.lock
-```
+- `modules/`: shared macOS and Home Manager configuration.
+- `apps/`: build, switch, and rollback helpers.
+- `private-config/`: pinned private submodule containing profiles, public keys,
+  and machine-specific commands. Software selections stay in public modules.
+- `flake.nix` and `flake.lock`: configuration assembly and pinned dependencies.
 
-## Provisioning a new Mac
+There is no example machine target. Without the private submodule the flake
+exposes development tools, but no machine configurations. The build and switch
+helpers stop if private configuration is absent.
 
-This configuration currently targets Apple silicon (`aarch64-darwin`). Run the setup from an administrator account.
+## Provision a Mac
 
-### 1. Install the prerequisites
-
-Install the Xcode command line tools:
+Install the Xcode command line tools, Rosetta 2 where needed, and Determinate
+Nix. Run setup from an administrator account on Apple silicon.
 
 ```sh
 xcode-select --install
-```
-
-Install Rosetta 2 once. Blacktail does not run this stateful installer during every system activation:
-
-```sh
 sudo /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 ```
 
-Install Determinate Nix:
+Install Nix using the instructions at https://docs.determinate.systems, then
+open a new shell. Clone with authenticated access to the private repository:
 
 ```sh
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
-  | sh -s -- install --nix-build-group-id 30000
-```
-
-Open a new shell after the installer finishes.
-
-### 2. Clone and review the host profile
-
-```sh
-git clone https://github.com/junr03/blacktail.git
+git clone --recurse-submodules https://github.com/junr03/blacktail.git
 cd blacktail
 ```
 
-Blacktail keeps each machine's configuration in a checked-in host profile:
-
-- `personal` uses [`hosts/junr03.nix`](hosts/junr03.nix).
-- `work` uses [`hosts/jose-rivera.nix`](hosts/jose-rivera.nix).
-
-Select the profile for each checkout in the ignored `.blacktail.local` file:
+For an existing checkout:
 
 ```sh
-printf 'BLACKTAIL_HOST_PROFILE=work\n' > .blacktail.local
+git submodule update --init private-config
 ```
 
-Use `personal` on the personal Mac. The build and switch helpers keep the selection local while the full profile remains checked into the repository. Rollback operates on the active Mac's existing system generations and does not need a profile selection. You can override the local selection for one command:
+Select a profile declared in `private-config/default.nix` through the ignored
+`.blacktail.local` file:
 
 ```sh
-BLACKTAIL_HOST_PROFILE=personal nix run .#build
+printf 'BLACKTAIL_HOST_PROFILE=YOUR_PROFILE\n' > .blacktail.local
 ```
 
-Review the selected profile's macOS username, Git identity, SSH identity filenames, and remote usernames before the first activation. To add another Mac, create another profile under `hosts/` and register it in `hostProfiles` in `flake.nix`; do not put machine-specific identity into the shared modules.
+Review its username, Git identity, SSH destinations, application selections,
+and Home Manager backup policy before activation. Enable the SSH agent in
+1Password's developer settings. Keep SSH and signing private keys in
+1Password; the private repository contains only their matching public keys.
 
-Packages are shared by default. Casks, Homebrew formulae, and Nix packages can be limited to a profile by adding a `profiles` list to their entry in `modules/casks.nix`, `modules/brews.nix`, or `modules/packages.nix`. Profile names match the keys in `hostProfiles` (currently `personal` and `work`); an entry is installed when the selected profile is listed. For example:
-
-```nix
-{ name = "some-work-only-cask"; profiles = [ "work" ]; }
-{ name = "some-personal-cask"; profiles = [ "personal" ]; }
-```
-
-Leave `profiles` off to make an entry universal. All entries use `name`, including Nix packages:
-
-```nix
-{ name = pkgs.some-package; profiles = [ "work" ]; }
-```
-
-Blacktail configures OpenSSH to use the 1Password SSH agent. Before the first activation, open 1Password, go to **Settings > Developer**, and enable **Use the SSH agent**.
-
-Import each existing private key into 1Password as an SSH Key item:
-
-```text
-~/.ssh/github
-~/.ssh/electricpeak
-~/.ssh/devbox (work profile)
-```
-
-Create an Ed25519 SSH Key item named `git-signature` for Git commit signing. Keep its private key only in 1Password.
-
-Store the items in a vault available to the agent. By default, 1Password makes keys in the Personal, Private, and Employee vaults available. Configure `~/.config/1Password/ssh/agent.toml` in 1Password if the keys live in another vault.
-
-Blacktail checks in the matching public keys:
-
-```text
-keys/github.pub
-keys/electricpeak.pub
-keys/devbox.pub
-keys/git-signature.pub
-```
-
-Home Manager installs the public keys required by the selected profile under `~/.ssh`. The SSH configuration refers to each key's base filename, and the matching public files let OpenSSH select the right agent key for each host while the private keys stay in 1Password. It also configures Git to use the `git-signature` public key with 1Password's SSH signer and sign commits by default. A new Mac only needs the Blacktail checkout and access to the matching 1Password SSH Key items.
-
-Before removing any local private key, confirm that the imported item has the same fingerprint as its checked-in public key and that the agent lists it:
-
-```sh
-ssh-keygen -lf keys/github.pub
-SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ssh-add -l
-```
-
-Repeat the fingerprint check for each selected SSH key, including `git-signature`. Then activate Blacktail, create a test commit, and verify its signature. Remove the local private-key files only after every connection and signing test succeeds through 1Password.
-
-To rotate a key, create or import its replacement in 1Password, add the new public key to the remote service, and replace the matching file under `keys/`. Run the Blacktail checks and activate the new generation before removing the old public key from the remote service. This keeps 1Password, Blacktail, and the remote host aligned without putting private key material in the Nix store.
-
-### 3. Handle the one-time Home Manager migration
-
-The host profile temporarily sets `homeManager.backupFileExtension = "before-nix"`. During the first activation, Home Manager renames conflicting regular files with that suffix before taking ownership.
-
-Before switching, preserve any settings you still need from existing shell, SSH, Git, Ghostty, tmux, and VS Code configuration. An existing `*.before-nix` destination or an unmanaged conflicting symlink will still stop activation.
-
-After the first successful switch:
-
-1. Review every `*.before-nix` file and merge any settings that belong in this repository.
-2. Remove the backups when they are no longer needed.
-3. Set `homeManager.backupFileExtension = null` in the host profile so future collisions fail instead of silently creating more backups.
-
-### 4. Build and activate
-
-```sh
-nix run .#build-switch
-```
-
-The Homebrew activation policy upgrades declared packages but uses `cleanup = "check"`; it will report undeclared formulae or casks without deleting them. Review each reported item, then either declare it or uninstall it manually. In particular, `gh`, Node.js, Python, Rust, tmux, and tmuxinator are Nix-owned, and Bambu Studio is intentionally absent.
-
-## Normal workflow
-
-Build without changing the active system:
+## Build and activate
 
 ```sh
 nix run .#build
-```
-
-Build and switch:
-
-```sh
 nix run .#build-switch
-```
-
-Select and activate an older system generation:
-
-```sh
 nix run .#rollback
 ```
 
-The build helpers use `--no-link`, so they do not leave a `result` symlink in the checkout.
+The helpers include the private submodule in the Nix source and use `--no-link`.
+Rollback operates on the current Mac's existing generations. Build does not
+activate the system. Build-switch does, including the existing Homebrew policy
+of upgrading declared applications and uninstalling undeclared packages.
+
+Preserve existing settings before first activation. When a profile sets a
+Home Manager backup extension, inspect those backups after migration before
+removing them or disabling the backup setting in the private profile.
 
 ## Development
 
-Enter the pinned development environment and install the Git hooks:
-
-```sh
-nix develop
-pre-commit install
-```
-
-Run the same formatting and lint checks used in CI:
-
 ```sh
 nix develop -c pre-commit run --all-files
+python3 tests/test_build_helpers.py
+nix flake check --all-systems
 ```
 
-Validate every flake check, including the full nix-darwin system closure:
+The last command checks the public flake without including the submodule.
+For real profile builds on macOS, include it explicitly:
 
 ```sh
-nix flake check --all-systems --print-build-logs
+nix flake check 'git+file://PATH_TO_CHECKOUT?submodules=1' --all-systems
 ```
 
-Format Nix files:
+Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, and
+`homeManager`. Public modules select software by profile name. Optional
+`shellAliases` extend the shared aliases. SSH entries supply `host` and
+`identityFile`, with optional `hostName` and `user`. They need not use any
+particular machine name.
 
-```sh
-nix fmt
-```
+## Integration CI
+
+Public CI runs without private access. Owner-authored PRs from this repository
+request a private integration build. External contributions need a maintainer
+to review the exact commit and dispatch the private workflow manually.
+
+Integration checks out the requested Blacktail SHA and the private commit
+pinned by its gitlink. It builds every real profile without activation and
+reports only `Private integration` pass/fail to that Blacktail SHA. Build logs
+and artifacts remain private. New PR commits need new integration results.
+
+Maintainers can also dispatch `Request private integration` manually with a
+reviewed full Blacktail SHA. During bootstrap, select the reviewed private
+workflow branch with `private_workflow_ref`; normal runs use `main`. Manual
+dispatch approves executing the selected code with access to private config.
+
+The request workflow needs the `PRIVATE_INTEGRATION_DISPATCH_TOKEN` Actions
+secret with Actions write on `blacktail-sensitive`. The private workflow needs
+its separate status-reporting token and revision variable; setup is documented
+in the private repository. Keep the private workflow on main before enabling
+dispatch. Require the integration status in branch protection after validating
+that the cross-repository connection works.
+
+Private configuration changes merge first. Update this repository's submodule
+pointer in a PR afterward and wait for the combined integration result.
+
+This change separates current configuration. It does not sanitize Git history
+or change repository visibility.

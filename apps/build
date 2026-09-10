@@ -22,10 +22,15 @@ if [[ ! "${BLACKTAIL_HOST_PROFILE}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   exit 1
 fi
 
+if [[ ! -f ./private-config/default.nix ]]; then
+  printf '%s\n' "Private configuration is missing. Run git submodule update --init private-config." >&2
+  exit 1
+fi
+
 readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-"${NIX}" build --no-link --print-out-paths ".#${FLAKE_SYSTEM}" "$@"
+"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" "$@"
 
 printf '%b\n' "${GREEN}Build complete.${NC}"

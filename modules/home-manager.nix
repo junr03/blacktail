@@ -36,6 +36,12 @@ in
       inherit lib;
       profile = hostProfileName;
     };
+    masApps = {
+      "1password-for-safari" = 1569813296;
+      "copilot-money" = 1447330651;
+      "infuse" = 1136220934;
+      "photomator" = 1444636541;
+    };
     taps = map (
       tap:
       if tap == "junr03/homebrew-blacktail" then
@@ -53,23 +59,6 @@ in
       upgrade = true;
     };
 
-    # These app IDs are from using the mas CLI app
-    # mas = mac app store
-    # https://github.com/mas-cli/mas
-    #
-    # $ nix shell nixpkgs#mas
-    # $ mas search <app name>
-    #
-    # If you have previously added these apps to your Mac App Store profile (but not installed them on this system),
-    # you may receive an error message "Redownload Unavailable with This Apple ID".
-    # This message is safe to ignore.
-
-    masApps = {
-      "1password-for-safari" = 1569813296;
-      "copilot-money" = 1447330651;
-      "infuse" = 1136220934;
-      "photomator" = 1444636541;
-    };
   };
 
   home-manager = {
@@ -138,10 +127,7 @@ in
                 }; compress_pdf
               '';
             }
-            // lib.optionalAttrs (hostProfile ? devbox) {
-              # Authenticate and start the work AWS devbox.
-              start-devbox = "(cd ${userHome}/${hostProfile.devbox.repoPath} && bin/auth && ENV_AWS_PROFILE=${hostProfile.devbox.awsProfile} bin/aws ec2 start-instances --region ${hostProfile.devbox.region} --instance-ids ${hostProfile.devbox.instanceId})";
-            };
+            // (hostProfile.shellAliases or { });
             initContent = lib.mkBefore ''
               # nix shortcuts
               shell() {
@@ -310,26 +296,18 @@ in
                 HashKnownHosts = true;
                 UserKnownHostsFile = "~/.ssh/known_hosts";
               };
-
-              "${hostProfile.ssh.github.host}" = {
-                IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.github.identityFile}";
-              };
-
-              "${hostProfile.ssh.electricpeak.host}" = {
-                IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.electricpeak.identityFile}";
-                User = hostProfile.ssh.electricpeak.user;
-              };
             }
-            // lib.optionalAttrs (hostProfile.ssh ? devbox) {
-              "${hostProfile.ssh.devbox.host}" = {
-                HostName = hostProfile.ssh.devbox.hostName;
-                IdentitiesOnly = true;
-                IdentityFile = "${userHome}/.ssh/${hostProfile.ssh.devbox.identityFile}";
-                User = hostProfile.ssh.devbox.user;
-              };
-            };
+            // lib.mapAttrs' (
+              _: identity:
+              lib.nameValuePair identity.host (
+                {
+                  IdentitiesOnly = true;
+                  IdentityFile = "${userHome}/.ssh/${identity.identityFile}";
+                }
+                // lib.optionalAttrs (identity ? hostName) { HostName = identity.hostName; }
+                // lib.optionalAttrs (identity ? user) { User = identity.user; }
+              )
+            ) hostProfile.ssh;
           };
           tmux = {
             enable = true;

@@ -56,10 +56,11 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      hostProfiles = {
-        personal = import ./hosts/junr03.nix;
-        work = import ./hosts/jose-rivera.nix;
-      };
+      hostProfiles =
+        if builtins.pathExists ./private-config/default.nix then
+          import ./private-config { lib = nixpkgs.lib; }
+        else
+          { };
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =
