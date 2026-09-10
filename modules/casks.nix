@@ -27,6 +27,7 @@ select {
     { name = "postico"; }
     { name = "raycast"; }
     { name = "slack"; }
+    { name = "tailscale-app"; }
     { name = "todoist-app"; }
     { name = "zed"; }
     {
