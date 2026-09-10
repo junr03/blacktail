@@ -11,10 +11,6 @@ select {
     { name = "1password"; }
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
-    {
-      name = "bluebubbles";
-      profiles = [ "personal" ];
-    }
     { name = "chatgpt"; }
     {
       name = "docker-desktop";
