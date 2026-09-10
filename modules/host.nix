@@ -1,6 +1,7 @@
 {
   gallatin,
   hostProfile,
+  hostProfileName,
   lib,
   pkgs,
   ...
@@ -47,7 +48,10 @@ in
     [
       (callPackage "${gallatin}/rename-picture.nix" { })
     ]
-    ++ hostProfile.packages pkgs;
+    ++ import ./packages.nix {
+      inherit lib pkgs;
+      profile = hostProfileName;
+    };
 
   # Font configuration
   fonts.packages = with pkgs; [
