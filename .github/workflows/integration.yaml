@@ -1,5 +1,16 @@
 name: Request private integration
 on:
+  workflow_dispatch:
+    inputs:
+      public_sha:
+        description: Reviewed full Blacktail commit SHA
+        required: true
+        type: string
+      private_workflow_ref:
+        description: Private workflow branch (main after bootstrap)
+        default: main
+        required: true
+        type: string
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
 permissions:
@@ -9,27 +20,43 @@ jobs:
   request:
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve the reviewed commit
+        id: candidate
+        uses: actions/github-script@v7
+        env:
+          REQUESTED_SHA: ${{ inputs.public_sha }}
+        with:
+          script: |
+            const sha = context.eventName === 'workflow_dispatch'
+              ? process.env.REQUESTED_SHA : context.payload.pull_request.head.sha;
+            if (!/^[0-9a-f]{40}$/.test(sha || '')) throw new Error('Invalid commit SHA');
+            core.setOutput('sha', sha);
       - name: Mark this exact commit pending
         uses: actions/github-script@v7
+        env:
+          PUBLIC_SHA: ${{ steps.candidate.outputs.sha }}
         with:
           script: |
             await github.rest.repos.createCommitStatus({
-              ...context.repo, sha: context.payload.pull_request.head.sha,
+              ...context.repo, sha: process.env.PUBLIC_SHA,
               context: 'Private integration', state: 'pending',
               description: 'Waiting for the private configuration build'
             });
       - name: Dispatch trusted owner changes
-        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == github.repository_owner
+        if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == github.repository_owner)
         uses: actions/github-script@v7
+        env:
+          PUBLIC_SHA: ${{ steps.candidate.outputs.sha }}
+          PRIVATE_WORKFLOW_REF: ${{ inputs.private_workflow_ref || 'main' }}
         with:
           github-token: ${{ secrets.PRIVATE_INTEGRATION_DISPATCH_TOKEN }}
           script: |
             // No candidate code is checked out or executed in this workflow.
             await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner, repo: 'blacktail-sentive',
-              workflow_id: 'integration.yaml', ref: 'main',
-              inputs: {public_sha: context.payload.pull_request.head.sha}
+              owner: context.repo.owner, repo: 'blacktail-sensitive',
+              workflow_id: 'integration.yaml', ref: process.env.PRIVATE_WORKFLOW_REF,
+              inputs: {public_sha: process.env.PUBLIC_SHA}
             });
       - name: Explain manual approval
-        if: github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login != github.repository_owner
+        if: github.event_name != 'workflow_dispatch' && (github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login != github.repository_owner)
         run: echo 'A private repository maintainer must review this commit and dispatch private integration manually.'

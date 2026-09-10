@@ -2,7 +2,7 @@
 
 Declarative macOS configuration built with Determinate Nix, nix-darwin, and
 Home Manager. Shared modules and tooling live here. Actual machine profiles
-live in the private `blacktail-sentive` repository. Credentials stay in
+live in the private `blacktail-sensitive` repository. Credentials stay in
 1Password.
 
 ## Layout
@@ -102,8 +102,13 @@ pinned by its gitlink. It builds every real profile without activation and
 reports only `Private integration` pass/fail to that Blacktail SHA. Build logs
 and artifacts remain private. New PR commits need new integration results.
 
+Maintainers can also dispatch `Request private integration` manually with a
+reviewed full Blacktail SHA. During bootstrap, select the reviewed private
+workflow branch with `private_workflow_ref`; normal runs use `main`. Manual
+dispatch approves executing the selected code with access to private config.
+
 The request workflow needs the `PRIVATE_INTEGRATION_DISPATCH_TOKEN` Actions
-secret with Actions write on `blacktail-sentive`. The private workflow needs
+secret with Actions write on `blacktail-sensitive`. The private workflow needs
 its separate status-reporting token and revision variable; setup is documented
 in the private repository. Keep the private workflow on main before enabling
 dispatch. Require the integration status in branch protection after validating
