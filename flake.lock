@@ -135,17 +135,39 @@
     "gallatin": {
       "flake": false,
       "locked": {
-        "lastModified": 1768020969,
-        "narHash": "sha256-rRaB5M2nAtau5KjQQ3FLzkx8ARyzHIQHy/ciuryYauI=",
+        "lastModified": 1789079569,
+        "narHash": "sha256-VDzKovsNA0ds9coR9mNMWMy+x+HNfCjqoAG4G0AhMZQ=",
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "7281e93b508c432fc2e83aa1c5250fe5ee92f8c9",
+        "rev": "ce30a627666bdf82bcb84146f5bd5331b062d81a",
         "type": "github"
       },
       "original": {
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "7281e93b508c432fc2e83aa1c5250fe5ee92f8c9",
+        "rev": "ce30a627666bdf82bcb84146f5bd5331b062d81a",
+        "type": "github"
+      }
+    },
+    "gallatinRunners": {
+      "inputs": {
+        "nix-darwin": "nix-darwin",
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "dir": "runners",
+        "lastModified": 1789079569,
+        "narHash": "sha256-VDzKovsNA0ds9coR9mNMWMy+x+HNfCjqoAG4G0AhMZQ=",
+        "owner": "junr03",
+        "repo": "gallatin",
+        "rev": "ce30a627666bdf82bcb84146f5bd5331b062d81a",
+        "type": "github"
+      },
+      "original": {
+        "dir": "runners",
+        "owner": "junr03",
+        "repo": "gallatin",
+        "rev": "ce30a627666bdf82bcb84146f5bd5331b062d81a",
         "type": "github"
       }
     },
@@ -260,6 +282,27 @@
         "url": "https://flakehub.com/f/DeterminateSystems/nix-src/%2A"
       }
     },
+    "nix-darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "gallatinRunners",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786845137,
+        "narHash": "sha256-oQFip+v0luP8NIxJzmiW4Wu8bILsbFWom5l0zonl8hQ=",
+        "owner": "LnL7",
+        "repo": "nix-darwin",
+        "rev": "4cff07de74b50e64bdd68cd4e722ab5b6b35ee48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LnL7",
+        "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
     "nix-homebrew": {
       "inputs": {
         "brew-src": "brew-src"
@@ -360,6 +403,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1789006805,
+        "narHash": "sha256-xB8mKMOx1IA9vTDNLmJZ6n4wCMq/cuWBBOzGCRnqxrU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "8ce4ef6cb6f871616146b9fe26d2a5ae594e94fe",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1786862985,
         "narHash": "sha256-FBJRXmbGXiSUDvYEbfLYRkckayyZ6SK1UEqhCrIZ2Cs=",
         "owner": "nixos",
@@ -379,13 +438,14 @@
         "darwin": "darwin",
         "determinate": "determinate",
         "gallatin": "gallatin",
+        "gallatinRunners": "gallatinRunners",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
         "nix-homebrew": "nix-homebrew",
         "nix-vscode-extensions": "nix-vscode-extensions",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_4",
         "rust-overlay": "rust-overlay"
       }
     },

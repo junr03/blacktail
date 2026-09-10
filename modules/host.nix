@@ -1,5 +1,6 @@
 {
   gallatin,
+  gallatinRunners,
   hostProfile,
   hostProfileName,
   lib,
@@ -11,6 +12,7 @@ let
 in
 {
   imports = [
+    gallatinRunners.darwinModules.github-actions-runner
     ./home-manager.nix
     ./.
   ];
@@ -52,6 +54,17 @@ in
       inherit lib pkgs;
       profile = hostProfileName;
     };
+
+  services.gallatin.githubActionsRunners.blacktail-macos = lib.mkIf (hostProfileName == "personal") {
+    enable = true;
+    repository = "https://github.com/junr03/blacktail-sensitive";
+    labels = [ "blacktail-macos" ];
+    tokenFile = "/Users/blacktail-runner/registration-token";
+    user = "blacktail-runner";
+    uid = 502;
+    workDirectory = "/Users/blacktail-runner";
+    preventSleep = true;
+  };
 
   # Font configuration
   fonts.packages = with pkgs; [

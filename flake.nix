@@ -35,15 +35,17 @@
       flake = false;
     };
     gallatin = {
-      url = "github:junr03/gallatin?rev=7281e93b508c432fc2e83aa1c5250fe5ee92f8c9";
+      url = "github:junr03/gallatin?rev=ce30a627666bdf82bcb84146f5bd5331b062d81a";
       flake = false;
     };
+    gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=ce30a627666bdf82bcb84146f5bd5331b062d81a";
   };
   outputs =
     {
       darwin,
       determinate,
       gallatin,
+      gallatinRunners,
       home-manager,
       homebrew-bundle,
       homebrew-cask,
