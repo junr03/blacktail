@@ -1,6 +1,7 @@
 {
   config,
   hostProfile,
+  hostProfileName,
   lib,
   pkgs,
   ...
@@ -27,7 +28,20 @@ in
 
   homebrew = {
     enable = true;
-    inherit (hostProfile.homebrew) casks brews masApps;
+    casks = import ./casks.nix {
+      inherit lib;
+      profile = hostProfileName;
+    };
+    brews = import ./brews.nix {
+      inherit lib;
+      profile = hostProfileName;
+    };
+    masApps = {
+      "1password-for-safari" = 1569813296;
+      "copilot-money" = 1447330651;
+      "infuse" = 1136220934;
+      "photomator" = 1444636541;
+    };
     taps = map (
       tap:
       if tap == "junr03/homebrew-blacktail" then

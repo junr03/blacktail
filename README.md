@@ -10,7 +10,7 @@ live in the private `blacktail-sensitive` repository. Credentials stay in
 - `modules/`: shared macOS and Home Manager configuration.
 - `apps/`: build, switch, and rollback helpers.
 - `private-config/`: pinned private submodule containing profiles, public keys,
-  package selections, and machine-specific commands.
+  and machine-specific commands. Software selections stay in public modules.
 - `flake.nix` and `flake.lock`: configuration assembly and pinned dependencies.
 
 There is no example machine target. Without the private submodule the flake
@@ -85,8 +85,8 @@ For real profile builds on macOS, include it explicitly:
 nix flake check 'git+file://PATH_TO_CHECKOUT?submodules=1' --all-systems
 ```
 
-Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, `homebrew`,
-`homeManager`, and a `packages` function accepting `pkgs`. Optional
+Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, and
+`homeManager`. Public modules select software by profile name. Optional
 `shellAliases` extend the shared aliases. SSH entries supply `host` and
 `identityFile`, with optional `hostName` and `user`. They need not use any
 particular machine name.
