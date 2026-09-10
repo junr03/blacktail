@@ -1,0 +1,35 @@
+name: Request private integration
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+  statuses: write
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark this exact commit pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              ...context.repo, sha: context.payload.pull_request.head.sha,
+              context: 'Private integration', state: 'pending',
+              description: 'Waiting for the private configuration build'
+            });
+      - name: Dispatch trusted owner changes
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == github.repository_owner
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PRIVATE_INTEGRATION_DISPATCH_TOKEN }}
+          script: |
+            // No candidate code is checked out or executed in this workflow.
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner, repo: 'blacktail-sentive',
+              workflow_id: 'integration.yaml', ref: 'main',
+              inputs: {public_sha: context.payload.pull_request.head.sha}
+            });
+      - name: Explain manual approval
+        if: github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login != github.repository_owner
+        run: echo 'A private repository maintainer must review this commit and dispatch private integration manually.'

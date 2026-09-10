@@ -11,7 +11,7 @@ let
   sshPublicKeyFiles = lib.mapAttrs' (
     _: identity:
     lib.nameValuePair "${userHome}/.ssh/${identity.identityFile}.pub" {
-      source = ../keys/${identity.identityFile}.pub;
+      source = hostProfile.keysDirectory + "/${identity.identityFile}.pub";
     }
   ) hostProfile.ssh;
 in
@@ -20,7 +20,7 @@ in
     source = ./config/ghostty;
   };
   "${userHome}/.ssh/${hostProfile.git.signingKey}.pub" = {
-    source = ../keys/${hostProfile.git.signingKey}.pub;
+    source = hostProfile.keysDirectory + "/${hostProfile.git.signingKey}.pub";
   };
 }
 // sshPublicKeyFiles

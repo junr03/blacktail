@@ -1,16 +1,9 @@
-## Modules
+# Shared modules
 
-Consolidated configuration for macOS systems.
+`host.nix` configures macOS and consumes the selected private profile.
+`home-manager.nix` configures programs, generic SSH host mappings, Git signing,
+and the 1Password agent. `files.nix` installs shared editor configuration and
+the public keys supplied by that profile. `default.nix` sets Nixpkgs policy.
 
-### Layout
-
-```
-.
-├── brews.nix              # Homebrew formulae
-├── casks.nix              # Homebrew casks
-├── config                 # Config files not written in Nix
-├── default.nix            # Shared Nixpkgs configuration
-├── files.nix              # User-specific static configuration files
-├── home-manager.nix       # User programs and Home Manager setup
-├── packages.nix           # Packages to install
-```
+Machine profiles, package selections, SSH destinations, and operational aliases
+belong in `private-config/`. Passwords and private keys belong in 1Password.
