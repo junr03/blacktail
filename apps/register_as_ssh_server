@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly GREEN='\033[1;32m'
+readonly YELLOW='\033[1;33m'
+readonly RED='\033[1;31m'
+readonly NC='\033[0m'
+
+readonly PRIVATE_REPOSITORY="${BLACKTAIL_PRIVATE_REPOSITORY:-junr03/blacktail-sensitive}"
+readonly ONEPASSWORD_VAULT="${BLACKTAIL_1PASSWORD_VAULT:-blacktail}"
+
+die() {
+  printf '%b\n' "${RED}$*${NC}" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "Required command is missing: $1"
+}
+
+case "${1:-}" in
+  "") ;;
+  -h|--help)
+    cat <<'EOF'
+Usage: register_as_ssh_server
+
+Register this Mac as a Blacktail SSH server using its LocalHostName and
+Tailscale IPv4 address. The command is idempotent and updates one PR in
+junr03/blacktail-sensitive.
+
+Environment overrides:
+  BLACKTAIL_COMPUTER_NAME        Computer name/slug instead of LocalHostName
+  BLACKTAIL_SSH_USER              SSH user instead of the current user
+  BLACKTAIL_TAILSCALE_IPV4        Tailscale IPv4 address for testing/overrides
+  BLACKTAIL_1PASSWORD_VAULT       1Password vault (default: blacktail)
+  BLACKTAIL_PRIVATE_REPOSITORY    GitHub repository (default: junr03/blacktail-sensitive)
+EOF
+    exit 0
+    ;;
+  *)
+    die "Unknown argument: $1. Use --help for usage."
+    ;;
+esac
+
+normalise_name() {
+  local value="$1"
+
+  value="$(printf '%s' "$value" | LC_ALL=C tr '[:space:]' '-' | LC_ALL=C sed 's/[^A-Za-z0-9._-]/-/g' | LC_ALL=C tr -s '-')"
+  value="$(printf '%s' "$value" | LC_ALL=C sed 's/^[.-]*//; s/[.-]*$//')"
+  [[ "$value" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || die "Could not derive a safe computer name. Set BLACKTAIL_COMPUTER_NAME explicitly."
+  printf '%s' "$value"
+}
+
+computer_name="${BLACKTAIL_COMPUTER_NAME:-}"
+if [[ -z "$computer_name" ]]; then
+  computer_name="$(/usr/sbin/scutil --get LocalHostName 2>/dev/null || true)"
+fi
+if [[ -z "$computer_name" ]]; then
+  computer_name="$(/usr/sbin/scutil --get ComputerName 2>/dev/null || true)"
+fi
+[[ -n "$computer_name" ]] || die "macOS did not provide a LocalHostName or ComputerName."
+
+computer_slug="$(normalise_name "$computer_name")"
+readonly COMPUTER_SLUG="$computer_slug"
+readonly SERVER_NAME="blacktail-${COMPUTER_SLUG}"
+readonly SSH_USER="${BLACKTAIL_SSH_USER:-$(id -un)}"
+
+[[ "$SSH_USER" =~ ^[A-Za-z0-9._-]+$ ]] || die "BLACKTAIL_SSH_USER contains invalid characters."
+
+tailscale_ip="${BLACKTAIL_TAILSCALE_IPV4:-}"
+if [[ -z "$tailscale_ip" ]]; then
+  require_command tailscale
+  tailscale_ip="$(tailscale ip -4 2>/dev/null | LC_ALL=C awk 'NF { print $1; exit }' || true)"
+fi
+[[ "$tailscale_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Could not determine a Tailscale IPv4 address. Ensure Tailscale is running, or set BLACKTAIL_TAILSCALE_IPV4 explicitly."
+readonly TAILSCALE_IP="$tailscale_ip"
+
+require_command gh
+require_command git
+require_command op
+require_command ssh-keygen
+
+blacktail_root="$(git rev-parse --show-toplevel 2>/dev/null)" || die "Run register_as_ssh_server from a Blacktail checkout."
+[[ -f "$blacktail_root/.gitmodules" ]] || die "The current checkout is not the Blacktail repository."
+
+readonly ITEM_TITLE="$SERVER_NAME"
+readonly BRANCH_NAME="blacktail/register-${COMPUTER_SLUG}"
+
+printf '%b\n' "${YELLOW}Registering ${SERVER_NAME} at ${TAILSCALE_IP}...${NC}"
+
+if ! op item get "$ITEM_TITLE" --vault "$ONEPASSWORD_VAULT" >/dev/null 2>&1; then
+  printf '%b\n' "${YELLOW}Creating the Ed25519 SSH key in 1Password vault ${ONEPASSWORD_VAULT}...${NC}"
+  op item create \
+    --category 'SSH Key' \
+    --title "$ITEM_TITLE" \
+    --vault "$ONEPASSWORD_VAULT" \
+    --ssh-generate-key ed25519 \
+    --tags 'blacktail,ssh-server' \
+    >/dev/null || die "1Password could not create ${ITEM_TITLE}."
+fi
+
+public_key="$(op read -n "op://${ONEPASSWORD_VAULT}/${ITEM_TITLE}/public_key" 2>/dev/null)" || die "Could not read the public key for ${ITEM_TITLE} from 1Password. The item must be an SSH Key item with a public_key field."
+[[ -n "$public_key" ]] || die "1Password returned an empty public key for ${ITEM_TITLE}."
+
+working_directory="$(mktemp -d "${TMPDIR:-/tmp}/blacktail-register.XXXXXX")"
+trap 'rm -rf "$working_directory"' EXIT
+private_checkout="${working_directory}/blacktail-sensitive"
+
+printf '%b\n' "${YELLOW}Cloning ${PRIVATE_REPOSITORY}...${NC}"
+gh repo clone "$PRIVATE_REPOSITORY" "$private_checkout" >/dev/null || die "Could not clone ${PRIVATE_REPOSITORY}. Check gh authentication and repository access."
+
+[[ -f "$private_checkout/ssh-servers.nix" ]] || die "${PRIVATE_REPOSITORY} does not contain ssh-servers.nix yet. Merge the Blacktail SSH-server schema before registering a machine."
+
+if git -C "$private_checkout" ls-remote --exit-code --heads origin "$BRANCH_NAME" >/dev/null 2>&1; then
+  git -C "$private_checkout" fetch origin "$BRANCH_NAME" >/dev/null
+  git -C "$private_checkout" switch --track -c "$BRANCH_NAME" "origin/$BRANCH_NAME" >/dev/null
+else
+  git -C "$private_checkout" switch -c "$BRANCH_NAME" >/dev/null
+fi
+
+mkdir -p "$private_checkout/keys" "$private_checkout/ssh-servers"
+printf '%s\n' "$public_key" > "$private_checkout/keys/${ITEM_TITLE}.pub"
+chmod 0644 "$private_checkout/keys/${ITEM_TITLE}.pub"
+ssh-keygen -lf "$private_checkout/keys/${ITEM_TITLE}.pub" >/dev/null || die "The public key from 1Password is not a valid OpenSSH public key."
+key_fingerprint="$(ssh-keygen -lf "$private_checkout/keys/${ITEM_TITLE}.pub" | awk '{ print $2 }')"
+readonly KEY_FINGERPRINT="$key_fingerprint"
+
+cat > "$private_checkout/ssh-servers/${COMPUTER_SLUG}.nix" <<EOF
+{
+  "${SERVER_NAME}" = {
+    host = "${SERVER_NAME}";
+    hostName = "${TAILSCALE_IP}";
+    identityFile = "${ITEM_TITLE}";
+    user = "${SSH_USER}";
+    blacktailServer = true;
+  };
+}
+EOF
+
+readonly PR_TITLE="Register Blacktail SSH server: ${SERVER_NAME}"
+pr_body="$(cat <<EOF
+This PR registers \`${SERVER_NAME}\` as a Blacktail SSH server.
+
+- LocalHostName: \`${computer_name}\`
+- Tailscale IPv4: \`${TAILSCALE_IP}\`
+- SSH alias: \`ssh ${SERVER_NAME}\`
+- 1Password item: \`${ITEM_TITLE}\` in the \`${ONEPASSWORD_VAULT}\` vault
+- Ed25519 fingerprint: \`${KEY_FINGERPRINT}\`
+
+The private key remains in 1Password. This PR is intentionally not configured for automatic merging.
+EOF
+)"
+readonly PR_BODY="$pr_body"
+
+git -C "$private_checkout" add -- "keys/${ITEM_TITLE}.pub" "ssh-servers/${COMPUTER_SLUG}.nix"
+if git -C "$private_checkout" diff --cached --quiet; then
+  pr_number="$(gh pr list --repo "$PRIVATE_REPOSITORY" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number' 2>/dev/null || true)"
+  if [[ -n "$pr_number" ]]; then
+    gh pr edit "$pr_number" --repo "$PRIVATE_REPOSITORY" --title "$PR_TITLE" --body "$PR_BODY" >/dev/null
+    pr_url="$(gh pr view "$pr_number" --repo "$PRIVATE_REPOSITORY" --json url --jq '.url')"
+    printf '%b\n' "${GREEN}${SERVER_NAME} is already registered; PR: ${pr_url}${NC}"
+  else
+    printf '%b\n' "${GREEN}${SERVER_NAME} is already registered with the current public key and address.${NC}"
+  fi
+  exit 0
+fi
+
+git -C "$private_checkout" commit -m "Register Blacktail SSH server ${SERVER_NAME}" >/dev/null
+git -C "$private_checkout" push --set-upstream origin "$BRANCH_NAME" >/dev/null
+
+pr_number="$(gh pr list --repo "$PRIVATE_REPOSITORY" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number' 2>/dev/null || true)"
+if [[ -n "$pr_number" ]]; then
+  gh pr edit "$pr_number" --repo "$PRIVATE_REPOSITORY" --title "$PR_TITLE" --body "$PR_BODY" >/dev/null
+  pr_url="$(gh pr view "$pr_number" --repo "$PRIVATE_REPOSITORY" --json url --jq '.url')"
+  printf '%b\n' "${GREEN}Updated ${pr_url}${NC}"
+else
+  pr_url="$(gh pr create --repo "$PRIVATE_REPOSITORY" --head "$BRANCH_NAME" --base main --title "$PR_TITLE" --body "$PR_BODY")"
+  printf '%b\n' "${GREEN}Opened ${pr_url}${NC}"
+fi

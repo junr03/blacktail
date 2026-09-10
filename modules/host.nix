@@ -8,6 +8,13 @@
 }:
 let
   user = hostProfile.username;
+  blacktailServerKeyFiles =
+    lib.mapAttrsToList (_: identity: hostProfile.keysDirectory + "/${identity.identityFile}.pub")
+      (
+        lib.filterAttrs (
+          _: identity: (identity ? blacktailServer) && identity.blacktailServer
+        ) hostProfile.ssh
+      );
 in
 {
   imports = [
@@ -52,6 +59,17 @@ in
       inherit lib pkgs;
       profile = hostProfileName;
     };
+
+  services.openssh = {
+    enable = true;
+    extraConfig = ''
+      AllowUsers ${user}
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+    '';
+  };
+
+  users.users.${user}.openssh.authorizedKeys.keyFiles = blacktailServerKeyFiles;
 
   # Font configuration
   fonts.packages = with pkgs; [

@@ -302,7 +302,7 @@ in
               lib.nameValuePair identity.host (
                 {
                   IdentitiesOnly = true;
-                  IdentityFile = "${userHome}/.ssh/${identity.identityFile}";
+                  IdentityFile = "${userHome}/.ssh/${identity.identityFile}.pub";
                 }
                 // lib.optionalAttrs (identity ? hostName) { HostName = identity.hostName; }
                 // lib.optionalAttrs (identity ? user) { User = identity.user; }
