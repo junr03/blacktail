@@ -1,5 +1,6 @@
 name: Request private integration
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       public_sha:
@@ -15,9 +16,22 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
-  statuses: write
 jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@v31
+      - name: Validate workflow syntax and shell steps
+        run: nix shell --inputs-from . nixpkgs#actionlint -c actionlint
   request:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - name: Resolve the reviewed commit
