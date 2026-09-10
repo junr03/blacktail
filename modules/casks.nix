@@ -24,6 +24,8 @@ select {
     { name = "google-drive"; }
     { name = "insta360-link-controller"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
+    { name = "microsoft-office"; }
+    { name = "microsoft-teams"; }
     { name = "obsidian"; }
     { name = "okta-verify"; }
     { name = "postico"; }
