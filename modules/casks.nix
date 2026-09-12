@@ -1,12 +1,12 @@
 {
   lib,
-  profile,
+  profiles,
 }:
 let
   select = (import ./profile-packages.nix { inherit lib; }).select;
 in
 select {
-  inherit profile;
+  inherit profiles;
   entries = [
     { name = "1password"; }
     { name = "1password-cli"; }

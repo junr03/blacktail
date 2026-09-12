@@ -41,8 +41,9 @@ For an existing checkout:
 git submodule update --init private-config
 ```
 
-Select a profile declared in `private-config/default.nix` through the ignored
-`.blacktail.local` file:
+Select a profile through the ignored `.blacktail.local` file. Private profiles
+are declared in `private-config/default.nix`; the public `runner` profile
+inherits `personal` and adds the GitHub Actions runner:
 
 ```sh
 printf 'BLACKTAIL_HOST_PROFILE=YOUR_PROFILE\n' > .blacktail.local
@@ -86,7 +87,8 @@ nix flake check 'git+file://PATH_TO_CHECKOUT?submodules=1' --all-systems
 ```
 
 Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, and
-`homeManager`. Public modules select software by profile name. Optional
+`homeManager`. Public modules select software by profile lineage, so `runner`
+receives everything selected for `personal`. Optional
 `shellAliases` extend the shared aliases. SSH entries supply `host` and
 `identityFile`, with optional `hostName` and `user`. They need not use any
 particular machine name.

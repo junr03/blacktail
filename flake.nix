@@ -58,11 +58,25 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      hostProfiles =
+      baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
           import ./private-config { lib = nixpkgs.lib; }
         else
           { };
+      profileParents = {
+        runner = "personal";
+      };
+      profileLineage =
+        profile:
+        [ profile ]
+        ++ nixpkgs.lib.optionals (builtins.hasAttr profile profileParents) (
+          profileLineage profileParents.${profile}
+        );
+      hostProfiles =
+        baseHostProfiles
+        // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
+          runner = baseHostProfiles.personal;
+        };
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =
@@ -108,6 +122,7 @@
           system = "aarch64-darwin";
           specialArgs = inputs // {
             inherit hostProfile hostProfileName;
+            hostProfileLineage = profileLineage hostProfileName;
           };
           modules = [
             {
@@ -142,7 +157,14 @@
 
       apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
       checks = nixpkgs.lib.genAttrs darwinSystems (
-        _: nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
+        system:
+        {
+          profile-packages = import ./tests/profile-packages.nix {
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+        }
+        // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
       );
       devShells = forAllToolSystems devShell;
       formatter = forAllToolSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);

@@ -13,7 +13,7 @@ if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" && -f ./.blacktail.local ]]; then
 fi
 
 if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" ]]; then
-  printf '%s\n' "Set BLACKTAIL_HOST_PROFILE to a configured profile such as personal or work." >&2
+  printf '%s\n' "Set BLACKTAIL_HOST_PROFILE to a configured profile such as personal, runner, or work." >&2
   exit 1
 fi
 
