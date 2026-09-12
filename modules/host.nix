@@ -2,6 +2,7 @@
   gallatin,
   gallatinRunners,
   hostProfile,
+  hostProfileLineage,
   hostProfileName,
   lib,
   pkgs,
@@ -52,10 +53,10 @@ in
     ]
     ++ import ./packages.nix {
       inherit lib pkgs;
-      profile = hostProfileName;
+      profiles = hostProfileLineage;
     };
 
-  services.gallatin.githubActionsRunners.blacktail-macos = lib.mkIf (hostProfileName == "personal") {
+  services.gallatin.githubActionsRunners.blacktail-macos = lib.mkIf (hostProfileName == "runner") {
     enable = true;
     repository = "https://github.com/junr03/blacktail-sensitive";
     labels = [ "blacktail-macos" ];

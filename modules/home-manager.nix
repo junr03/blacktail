@@ -1,7 +1,7 @@
 {
   config,
   hostProfile,
-  hostProfileName,
+  hostProfileLineage,
   lib,
   pkgs,
   ...
@@ -30,11 +30,11 @@ in
     enable = true;
     casks = import ./casks.nix {
       inherit lib;
-      profile = hostProfileName;
+      profiles = hostProfileLineage;
     };
     brews = import ./brews.nix {
       inherit lib;
-      profile = hostProfileName;
+      profiles = hostProfileLineage;
     };
     masApps = {
       "1password-for-safari" = 1569813296;
