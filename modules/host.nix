@@ -60,7 +60,7 @@ in
     enable = true;
     repository = "https://github.com/junr03/blacktail-sensitive";
     labels = [ "blacktail-macos" ];
-    tokenFile = "/private/var/db/blacktail-github-runner/registration-token";
+    accessTokenFile = "/private/var/db/blacktail-github-runner/access-token";
     user = "blacktail-runner";
     uid = 502;
     workDirectory = "/Users/blacktail-runner";

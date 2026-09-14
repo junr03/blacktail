@@ -54,6 +54,14 @@ and Home Manager backup policy before activation. Enable the SSH agent in
 1Password's developer settings. Keep SSH and signing private keys in
 1Password; the private repository contains only their matching public keys.
 
+Before activating the `runner` profile, create
+`/private/var/db/blacktail-github-runner/access-token` as a root-readable file.
+It must contain a GitHub access token for the runner's repository. A
+fine-grained token needs repository Administration write permission; a classic
+token needs the `repo` scope for a private repository. The bootstrap service
+uses it only to request GitHub's short-lived runner registration token; never
+commit the token.
+
 ## Build and activate
 
 ```sh
