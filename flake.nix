@@ -35,10 +35,10 @@
       flake = false;
     };
     gallatin = {
-      url = "github:junr03/gallatin?rev=081cb8f94a81e7653ff3b5808332b745dd486308";
+      url = "github:junr03/gallatin?rev=9d2c6d3179a2cfac16906bbc501daebd1cf4aa0a";
       flake = false;
     };
-    gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=081cb8f94a81e7653ff3b5808332b745dd486308";
+    gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=9d2c6d3179a2cfac16906bbc501daebd1cf4aa0a";
   };
   outputs =
     {
