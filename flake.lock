@@ -135,17 +135,17 @@
     "gallatin": {
       "flake": false,
       "locked": {
-        "lastModified": 1789405496,
-        "narHash": "sha256-yB/Zses4P4zFxek2b6fkXoZDGjWgzEYOY5dIGd9vdA0=",
+        "lastModified": 1789407140,
+        "narHash": "sha256-bZoRhDInQ6Z6UAhIq3KKuHdYx+6Shu/nPYkLTJBGyus=",
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "a9cf22cd9b58511888f347e1e78bf724c98424c9",
+        "rev": "c3075052b5ea620233eb9b301b7dfbfbebec3b84",
         "type": "github"
       },
       "original": {
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "a9cf22cd9b58511888f347e1e78bf724c98424c9",
+        "rev": "c3075052b5ea620233eb9b301b7dfbfbebec3b84",
         "type": "github"
       }
     },
@@ -156,18 +156,18 @@
       },
       "locked": {
         "dir": "runners",
-        "lastModified": 1789405496,
-        "narHash": "sha256-yB/Zses4P4zFxek2b6fkXoZDGjWgzEYOY5dIGd9vdA0=",
+        "lastModified": 1789407140,
+        "narHash": "sha256-bZoRhDInQ6Z6UAhIq3KKuHdYx+6Shu/nPYkLTJBGyus=",
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "a9cf22cd9b58511888f347e1e78bf724c98424c9",
+        "rev": "c3075052b5ea620233eb9b301b7dfbfbebec3b84",
         "type": "github"
       },
       "original": {
         "dir": "runners",
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "a9cf22cd9b58511888f347e1e78bf724c98424c9",
+        "rev": "c3075052b5ea620233eb9b301b7dfbfbebec3b84",
         "type": "github"
       }
     },
