@@ -112,14 +112,17 @@ selections belong in this repository.
 The repository checks this boundary in three places:
 
 - `scripts/check_public.py` rejects private-looking paths and high-confidence
-  credential material from the Git index.
+  credential material from the Git index, and its push mode scans every commit
+  introduced by each pushed ref update.
 - `pre-commit install` installs the checker for both commit and push hooks.
-- The required `Public boundary` GitHub check validates every pull request and
-  push without checking out the private submodule.
+- The required `Public boundary` GitHub check runs from trusted base-branch code,
+  scans the candidate commit as Git data, and never checks out or executes PR
+  code or the private submodule.
 
-The local hooks are an early warning. Do not bypass them; the GitHub check and
-branch ruleset are the repository enforcement point. GitHub secret-scanning
-push protection remains enabled as a second credential safeguard.
+The local hooks are an early warning. Do not bypass them; the trusted GitHub
+check and branch ruleset protect pull requests targeting `main`. GitHub
+secret-scanning push protection remains enabled as a second credential
+safeguard.
 
 ## Integration CI
 
