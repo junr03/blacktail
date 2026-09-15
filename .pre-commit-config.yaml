@@ -1,4 +1,4 @@
-default_install_hook_types: [pre-commit, pre-push]
+default_install_hook_types: [pre-commit]
 
 repos:
   - repo: local
@@ -10,13 +10,6 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
-      - id: public-boundary-push
-        name: Protect public/private boundary in push
-        entry: python3 scripts/check_public.py --pre-push
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [pre-push]
       - id: nixfmt
         name: Format Nix files with nixfmt
         entry: nixfmt

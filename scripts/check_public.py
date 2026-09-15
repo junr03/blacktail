@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
-import os
 import re
 import subprocess
 import sys
@@ -46,18 +45,27 @@ PRIVATE_PATH_GLOBS = (
 CONTENT_PATTERNS = (
     (
         "private key material",
-        r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----",
+        re.compile(rb"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----"),
     ),
-    ("age identity material", r"AGE-" + r"SECRET-KEY-"),
+    ("age identity material", re.compile(rb"AGE-" + rb"SECRET-KEY-")),
     (
         "GitHub token",
-        r"(^|[^[:alnum:]_])(gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})([^[:alnum:]_]|$)",
+        re.compile(
+            rb"(?<![A-Za-z0-9_])(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})(?![A-Za-z0-9_])"
+        ),
     ),
-    ("AWS access key", r"(^|[^[:alnum:]])(AKIA|ASIA)[0-9A-Z]{16}([^[:alnum:]]|$)"),
-    ("Slack token", r"(^|[^[:alnum:]_])xox[baprs]-[0-9A-Za-z-]{20,}([^[:alnum:]_]|$)"),
+    (
+        "AWS access key",
+        re.compile(rb"(?<![A-Za-z0-9])(?:AKIA|ASIA)[0-9A-Z]{16}(?![A-Za-z0-9])"),
+    ),
+    (
+        "Slack token",
+        re.compile(rb"(?<![A-Za-z0-9_])xox[baprs]-[0-9A-Za-z-]{20,}(?![A-Za-z0-9_])"),
+    ),
 )
 ZERO_SHA = "0" * 40
 SHA_PATTERN = re.compile(r"[0-9a-fA-F]{40}")
+GitEntry = tuple[str, str, str]
 
 
 def run_git(*args: str) -> subprocess.CompletedProcess[bytes]:
@@ -77,7 +85,7 @@ def repository_root() -> Path:
     return Path(result.stdout.decode().strip())
 
 
-def indexed_paths() -> list[tuple[str, str]]:
+def indexed_entries() -> list[GitEntry]:
     result = run_git("ls-files", "--stage", "-z")
     if result.returncode != 0:
         print("Unable to read the Git index.", file=sys.stderr)
@@ -89,13 +97,23 @@ def indexed_paths() -> list[tuple[str, str]]:
     for record in result.stdout.split(b"\0"):
         if not record:
             continue
-        metadata, path_bytes = record.rsplit(b"\t", 1)
-        mode = metadata.split(maxsplit=1)[0].decode()
-        entries.append((mode, path_bytes.decode(errors="surrogateescape")))
+        metadata, path_bytes = record.split(b"\t", 1)
+        fields = metadata.split()
+        entries.append(
+            (
+                fields[0].decode(),
+                fields[1].decode(),
+                path_bytes.decode(errors="surrogateescape"),
+            )
+        )
     return entries
 
 
-def revision_paths(revision: str) -> list[tuple[str, str]]:
+def indexed_paths() -> list[tuple[str, str]]:
+    return [(mode, path) for mode, _, path in indexed_entries()]
+
+
+def revision_entries(revision: str) -> list[GitEntry]:
     result = run_git("ls-tree", "-r", "-z", "--full-tree", revision)
     if result.returncode != 0:
         print("Unable to read the requested Git tree.", file=sys.stderr)
@@ -105,10 +123,20 @@ def revision_paths(revision: str) -> list[tuple[str, str]]:
     for record in result.stdout.split(b"\0"):
         if not record:
             continue
-        metadata, path_bytes = record.rsplit(b"\t", 1)
-        mode = metadata.split(maxsplit=1)[0].decode()
-        entries.append((mode, path_bytes.decode(errors="surrogateescape")))
+        metadata, path_bytes = record.split(b"\t", 1)
+        fields = metadata.split()
+        entries.append(
+            (
+                fields[0].decode(),
+                fields[2].decode(),
+                path_bytes.decode(errors="surrogateescape"),
+            )
+        )
     return entries
+
+
+def revision_paths(revision: str) -> list[tuple[str, str]]:
+    return [(mode, path) for mode, _, path in revision_entries(revision)]
 
 
 def path_violations(entries: list[tuple[str, str]]) -> list[str]:
@@ -130,34 +158,28 @@ def path_violations(entries: list[tuple[str, str]]) -> list[str]:
     return violations
 
 
-def content_violations(revision: str | None = None) -> list[str]:
-    violations: list[str] = []
-    for label, pattern in CONTENT_PATTERNS:
-        args = ["grep"]
-        if revision is None:
-            args.append("--cached")
-        args.extend(["-I", "-n", "-E", "-e", pattern])
-        if revision is not None:
-            args.append(revision)
-        args.append("--")
-        result = run_git(*args)
-        if result.returncode == 1:
-            continue
-        if result.returncode != 0:
-            print(f"Unable to scan indexed content for {label}.", file=sys.stderr)
-            if result.stderr:
-                print(result.stderr.decode(errors="replace").strip(), file=sys.stderr)
-            raise SystemExit(2)
+def content_violations(entries: list[GitEntry]) -> list[str]:
+    """Find credential material in blob contents without echoing blob data."""
 
-        for line in result.stdout.splitlines():
-            path_bytes, separator, remainder = line.partition(b":")
-            if not separator:
-                violations.append(f"{path_bytes.decode(errors='replace')} ({label})")
-                continue
-            line_number, _, _ = remainder.partition(b":")
-            violations.append(
-                f"{path_bytes.decode(errors='replace')}:{line_number.decode(errors='replace')} ({label})"
-            )
+    violations: list[str] = []
+    blobs: dict[str, bytes] = {}
+    for mode, object_id, path in entries:
+        if mode == "160000":
+            continue
+        if object_id not in blobs:
+            result = run_git("cat-file", "blob", object_id)
+            if result.returncode != 0:
+                print(f"Unable to scan indexed content for {path}.", file=sys.stderr)
+                if result.stderr:
+                    print(result.stderr.decode(errors="replace").strip(), file=sys.stderr)
+                raise SystemExit(2)
+            blobs[object_id] = result.stdout
+
+        contents = blobs[object_id]
+        for label, pattern in CONTENT_PATTERNS:
+            for match in pattern.finditer(contents):
+                line_number = contents.count(b"\n", 0, match.start()) + 1
+                violations.append(f"{path}:{line_number} ({label})")
     return violations
 
 
@@ -176,24 +198,9 @@ def resolve_commit(sha: str, *, required: bool) -> str | None:
     return None
 
 
-def introduced_commits(local_sha: str, remote_sha: str) -> list[str]:
-    local_commit = resolve_commit(local_sha, required=True)
-    assert local_commit is not None
-
-    args = ["rev-list", local_commit]
-    if remote_sha != ZERO_SHA:
-        remote_commit = resolve_commit(remote_sha, required=False)
-        if remote_commit is not None:
-            args.extend(["--not", remote_commit])
-
-    result = run_git(*args)
-    if result.returncode != 0:
-        print("Unable to enumerate commits for a pushed ref.", file=sys.stderr)
-        raise SystemExit(2)
-    return [line.decode().strip() for line in result.stdout.splitlines() if line]
-
-
-def unpublished_commits(remote_name: str) -> list[str]:
+def remote_tracking_commits(remote_name: str | None) -> list[str]:
+    if remote_name is None:
+        return []
     if not re.fullmatch(r"[A-Za-z0-9.@_/-]+", remote_name):
         print("The pre-push check received an invalid remote name.", file=sys.stderr)
         raise SystemExit(2)
@@ -206,19 +213,36 @@ def unpublished_commits(remote_name: str) -> list[str]:
     if result.returncode != 0:
         print("Unable to enumerate remote-tracking refs.", file=sys.stderr)
         raise SystemExit(2)
+    return [line.decode().strip() for line in result.stdout.splitlines() if line]
 
-    remote_commits = [line.decode().strip() for line in result.stdout.splitlines() if line]
-    args = ["rev-list", "--all"]
-    if remote_commits:
-        args.extend(["--not", *remote_commits])
+
+def introduced_commits(
+    local_sha: str,
+    remote_sha: str,
+    remote_name: str | None = None,
+) -> list[str]:
+    local_commit = resolve_commit(local_sha, required=True)
+    assert local_commit is not None
+
+    exclusions: list[str] = []
+    if remote_sha != ZERO_SHA:
+        remote_commit = resolve_commit(remote_sha, required=False)
+        if remote_commit is not None:
+            exclusions.append(remote_commit)
+    exclusions.extend(remote_tracking_commits(remote_name))
+
+    args = ["rev-list", local_commit]
+    if exclusions:
+        args.extend(["--not", *dict.fromkeys(exclusions)])
+
     result = run_git(*args)
     if result.returncode != 0:
-        print("Unable to enumerate unpublished commits.", file=sys.stderr)
+        print("Unable to enumerate commits for a pushed ref.", file=sys.stderr)
         raise SystemExit(2)
     return [line.decode().strip() for line in result.stdout.splitlines() if line]
 
 
-def parse_ref_updates(updates: list[bytes]) -> set[str]:
+def parse_ref_updates(updates: list[bytes], remote_name: str | None) -> set[str]:
     commits: set[str] = set()
     for update in updates:
         fields = update.split()
@@ -233,39 +257,22 @@ def parse_ref_updates(updates: list[bytes]) -> set[str]:
             raise SystemExit(2)
         if local_sha == ZERO_SHA:
             continue
-        commits.update(introduced_commits(local_sha, remote_sha))
+        commits.update(introduced_commits(local_sha, remote_sha, remote_name))
     return commits
 
 
-def pushed_commits() -> list[str]:
+def pushed_commits(remote_name: str | None) -> list[str]:
     updates = sys.stdin.buffer.read().splitlines()
     if updates:
-        return sorted(parse_ref_updates(updates))
-
-    # pre-commit consumes pre-push stdin and exposes the selected update
-    # through these environment variables. Scan that update and all other
-    # local commits absent from the remote-tracking refs so multi-ref pushes
-    # are covered as well.
-    from_ref = os.environ.get("PRE_COMMIT_FROM_REF")
-    to_ref = os.environ.get("PRE_COMMIT_TO_REF")
-    remote_name = os.environ.get("PRE_COMMIT_REMOTE_NAME")
-    commits: set[str] = set()
-    if from_ref and to_ref:
-        if not SHA_PATTERN.fullmatch(from_ref) or not SHA_PATTERN.fullmatch(to_ref):
-            print("The pre-push check received an invalid commit id.", file=sys.stderr)
-            raise SystemExit(2)
-        commits.update(introduced_commits(to_ref, from_ref))
-    if remote_name:
-        commits.update(unpublished_commits(remote_name))
-    if not commits:
-        print("The pre-push check received no ref updates.", file=sys.stderr)
-        raise SystemExit(2)
-    return sorted(commits)
+        return sorted(parse_ref_updates(updates, remote_name))
+    print("The pre-push check received no ref updates.", file=sys.stderr)
+    raise SystemExit(2)
 
 
 def check_revision(revision: str) -> list[str]:
-    violations = path_violations(revision_paths(revision))
-    violations.extend(content_violations(revision))
+    entries = revision_entries(revision)
+    violations = path_violations([(mode, path) for mode, _, path in entries])
+    violations.extend(content_violations(entries))
     return violations
 
 
@@ -282,23 +289,41 @@ def main() -> int:
         action="store_true",
         help="read pre-push ref updates and scan all introduced commits",
     )
+    source.add_argument(
+        "--range",
+        nargs=2,
+        metavar=("BASE", "HEAD"),
+        help="scan every commit reachable from HEAD but not BASE",
+    )
+    parser.add_argument(
+        "--remote-name",
+        help="remote name associated with --pre-push ref updates",
+    )
     args = parser.parse_args()
 
     root = repository_root()
     if args.pre_push:
-        revisions = pushed_commits()
+        revisions = pushed_commits(args.remote_name)
         violations: list[str] = []
         for revision in revisions:
             violations.extend(check_revision(revision))
         scope = "pushed commits"
+    elif args.range:
+        base, head = args.range
+        revisions = introduced_commits(head, base)
+        violations = []
+        for revision in revisions:
+            violations.extend(check_revision(revision))
+        scope = "commits introduced by the requested range"
     elif args.commit:
         revision = resolve_commit(args.commit, required=True)
         assert revision is not None
         violations = check_revision(revision)
         scope = f"commit {revision}"
     else:
-        violations = path_violations(indexed_paths())
-        violations.extend(content_violations())
+        entries = indexed_entries()
+        violations = path_violations([(mode, path) for mode, _, path in entries])
+        violations.extend(content_violations(entries))
         scope = "the Git index"
 
     if violations:

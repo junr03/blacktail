@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
           submodules: false
       - name: Fetch candidate commit as data
@@ -29,11 +29,12 @@ jobs:
             echo "Invalid pull request commit" >&2
             exit 2
           fi
-          git fetch --no-tags --depth=1 origin "refs/pull/${PR_NUMBER}/head"
+          git fetch --no-tags origin "refs/pull/${PR_NUMBER}/head"
           test "$(git rev-parse FETCH_HEAD)" = "$PR_SHA"
-      - name: Reject private paths and credential material from candidate
+      - name: Reject private paths and credential material from candidate history
         env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
-        run: python3 scripts/check_public.py --commit "$CANDIDATE_SHA"
+        run: python3 scripts/check_public.py --range "$BASE_SHA" "$CANDIDATE_SHA"
       - name: Test the trusted boundary checker
         run: python3 -m unittest tests/test_public_boundary.py
