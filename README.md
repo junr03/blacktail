@@ -101,6 +101,26 @@ receives everything selected for `personal`. Optional
 `identityFile`, with optional `hostName` and `user`. They need not use any
 particular machine name.
 
+## Public/private boundary
+
+Blacktail is public. Machine identities, SSH destinations, operational aliases,
+public keys, and credentials belong in the private `blacktail-sensitive`
+repository. Keep `private-config` as a gitlink. Never replace it with a regular
+directory or commit files beneath it here. Shared modules and software
+selections belong in this repository.
+
+The repository checks this boundary in three places:
+
+- `scripts/check_public.py` rejects private-looking paths and high-confidence
+  credential material from the Git index.
+- `pre-commit install` installs the checker for both commit and push hooks.
+- The required `Public boundary` GitHub check validates every pull request and
+  push without checking out the private submodule.
+
+The local hooks are an early warning. Do not bypass them; the GitHub check and
+branch ruleset are the repository enforcement point. GitHub secret-scanning
+push protection remains enabled as a second credential safeguard.
+
 ## Integration CI
 
 Public CI runs without private access. Owner-authored PRs from this repository
@@ -127,5 +147,7 @@ that the cross-repository connection works.
 Private configuration changes merge first. Update this repository's submodule
 pointer in a PR afterward and wait for the combined integration result.
 
-This change separates current configuration. It does not sanitize Git history
-or change repository visibility.
+The current tree is sanitized, but deleting a private file in a normal commit
+does not erase it from older Git history or from already-public refs. Treat the
+history cleanup as a separate repository migration and rotate any credential
+material that was ever committed.

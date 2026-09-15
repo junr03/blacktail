@@ -1,0 +1,21 @@
+name: Public boundary
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: false
+      - name: Reject private paths and credential material
+        run: python3 scripts/check_public.py
+      - name: Test the boundary checker
+        run: python3 -m unittest tests/test_public_boundary.py
