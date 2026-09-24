@@ -40,6 +40,7 @@ in
       "1password-for-safari" = 1569813296;
       "copilot-money" = 1447330651;
       "infuse" = 1136220934;
+      "okta-verify" = 490179405;
       "photomator" = 1444636541;
     };
     taps = map (
