@@ -28,6 +28,15 @@ in
     ./.
   ];
 
+  # Let macOS send queries for configured internal domains to their resolver.
+  # The profile owns the machine-specific domain and nameserver mapping.
+  environment.etc = lib.mapAttrs' (
+    domain: nameserver:
+    lib.nameValuePair "resolver/${domain}" {
+      text = "nameserver ${nameserver}\n";
+    }
+  ) (hostProfile.dnsResolvers or { });
+
   determinateNix = {
     enable = true;
 
