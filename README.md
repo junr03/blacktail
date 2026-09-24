@@ -99,7 +99,9 @@ Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, and
 receives everything selected for `personal`. Optional
 `shellAliases` extend the shared aliases. SSH entries supply `host` and
 `identityFile`, with optional `hostName` and `user`. They need not use any
-particular machine name.
+particular machine name. Optional `dnsResolvers` maps internal DNS domains to
+nameserver IP addresses; nix-darwin manages the corresponding files under
+`/etc/resolver/` for that host profile.
 
 ## Integration CI
 
