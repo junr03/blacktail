@@ -29,6 +29,7 @@ select {
     { name = "slack"; }
     { name = "tailscale-app"; }
     { name = "todoist-app"; }
+    { name = "work-louder-input"; }
     { name = "zed"; }
     {
       name = "zerotier-one";
