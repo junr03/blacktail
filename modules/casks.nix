@@ -24,6 +24,7 @@ select {
     { name = "microsoft-teams"; }
     { name = "obsidian"; }
     { name = "okta-verify"; }
+    { name = "openscad@snapshot"; }
     { name = "postico"; }
     { name = "raycast"; }
     { name = "slack"; }
