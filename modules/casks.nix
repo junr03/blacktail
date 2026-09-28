@@ -16,6 +16,10 @@ select {
       name = "docker-desktop";
       profiles = [ "work" ];
     }
+    {
+      name = "figma";
+      profiles = [ "work" ];
+    }
     { name = "ghostty"; }
     { name = "google-drive"; }
     { name = "insta360-link-controller"; }
