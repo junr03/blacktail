@@ -31,6 +31,9 @@ select {
     { name = "okta-verify"; }
     { name = "openscad@snapshot"; }
     { name = "postico"; }
+    { name = "postman";
+      profiles = [ "work" ];
+    }
     { name = "raycast"; }
     { name = "slack"; }
     { name = "tailscale-app"; }
