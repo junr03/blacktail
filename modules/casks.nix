@@ -27,6 +27,7 @@ select {
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
+    { name = "monitorcontrol"; }
     { name = "obsidian"; }
     { name = "okta-verify"; }
     { name = "openscad@snapshot"; }
