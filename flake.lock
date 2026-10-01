@@ -261,6 +261,22 @@
         "type": "github"
       }
     },
+    "horaTap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790863135,
+        "narHash": "sha256-l7OoH/dXd45nh7Ti0TpokKZno/8W38/Nd5NGAJijyZI=",
+        "owner": "szamowski-dev",
+        "repo": "homebrew-tap",
+        "rev": "1a495e90b9329de10a5cf7218697a45b30796d13",
+        "type": "github"
+      },
+      "original": {
+        "owner": "szamowski-dev",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -443,6 +459,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "horaTap": "horaTap",
         "nix-homebrew": "nix-homebrew",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_4",
