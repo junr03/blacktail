@@ -45,7 +45,12 @@ in
     };
     taps = map (
       tap:
-      if tap == "junr03/homebrew-blacktail" then
+      if
+        builtins.elem tap [
+          "junr03/homebrew-blacktail"
+          "szamowski-dev/tap"
+        ]
+      then
         {
           name = tap;
           trusted = true;

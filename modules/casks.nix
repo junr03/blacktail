@@ -25,6 +25,7 @@ select {
     { name = "granola"; }
     { name = "insta360-link-controller"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
+    { name = "szamowski-dev/tap/hora"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
     { name = "monitorcontrol"; }
@@ -32,7 +33,8 @@ select {
     { name = "okta-verify"; }
     { name = "openscad@snapshot"; }
     { name = "postico"; }
-    { name = "postman";
+    {
+      name = "postman";
       profiles = [ "work" ];
     }
     { name = "raycast"; }
