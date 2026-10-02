@@ -149,7 +149,7 @@
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
                   "junr03/homebrew-blacktail" = self.outPath;
-                  "szamowski-dev/tap" = horaTap;
+                  "szamowski-dev/homebrew-tap" = horaTap;
                 };
                 mutableTaps = false;
               };
