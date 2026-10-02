@@ -48,7 +48,7 @@ in
       if
         builtins.elem tap [
           "junr03/homebrew-blacktail"
-          "szamowski-dev/tap"
+          "szamowski-dev/homebrew-tap"
         ]
       then
         {
