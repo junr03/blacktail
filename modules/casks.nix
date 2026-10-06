@@ -12,6 +12,7 @@ select {
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
     { name = "chatgpt"; }
+    { name = "claude"; }
     {
       name = "docker-desktop";
       profiles = [ "work" ];
