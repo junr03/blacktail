@@ -21,6 +21,7 @@ select {
       name = "figma";
       profiles = [ "work" ];
     }
+    { name = "firefox"; }
     { name = "ghostty"; }
     { name = "google-drive"; }
     { name = "granola"; }
