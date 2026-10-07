@@ -26,6 +26,7 @@ select {
     { name = "google-drive"; }
     { name = "granola"; }
     { name = "insta360-link-controller"; }
+    { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "szamowski-dev/tap/hora"; }
     { name = "microsoft-office"; }
