@@ -145,6 +145,16 @@ in
                 nix shell "nixpkgs#$1"
               }
 
+              # Copy missing files with per-file progress, preserving existing destinations.
+              copy_files() {
+                if (( $# != 2 )); then
+                  echo "Usage: copy_files <src> <dst>"
+                  return 1
+                fi
+
+                rsync --archive --verbose --progress --ignore-existing -- "$1" "$2"
+              }
+
               # pnpm is a javascript package manager
               alias pn=pnpm
               alias px=pnpx
