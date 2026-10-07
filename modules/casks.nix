@@ -31,6 +31,7 @@ select {
     { name = "szamowski-dev/tap/hora"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
+    { name = "mimestream"; }
     { name = "monitorcontrol"; }
     { name = "obsidian"; }
     { name = "okta-verify"; }
