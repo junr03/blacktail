@@ -89,6 +89,7 @@ in
             "$HOME/.pnpm-packages"
             "$HOME/.npm-packages/bin"
             "$HOME/bin"
+            "$HOME/.local/bin"
             "$HOME/.local/share/bin"
           ];
           sessionVariables = {
