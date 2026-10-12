@@ -13,6 +13,7 @@ select {
       profiles = [ "work" ];
     }
     { name = "awscli"; }
+    { name = "claude-code"; }
     { name = "git-spice"; }
     { name = "go"; }
     { name = "gptfdisk"; }
