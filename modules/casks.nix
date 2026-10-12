@@ -13,6 +13,7 @@ select {
     { name = "adobe-creative-cloud"; }
     { name = "chatgpt"; }
     { name = "claude"; }
+    { name = "conductor"; }
     {
       name = "docker-desktop";
       profiles = [ "work" ];
