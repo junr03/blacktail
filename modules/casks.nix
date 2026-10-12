@@ -45,6 +45,7 @@ select {
     { name = "raycast"; }
     { name = "slack"; }
     { name = "superhuman"; }
+    { name = "superset"; }
     { name = "tailscale-app"; }
     { name = "todoist-app"; }
     { name = "work-louder-input"; }
