@@ -11,6 +11,9 @@ select {
     { name = "1password"; }
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
+    { name = "antigravity"; }
+    { name = "antigravity-cli"; }
+    { name = "antigravity-ide"; }
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "conductor"; }
