@@ -60,6 +60,7 @@
       nixpkgs,
       rust-overlay,
       self,
+      ...
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
@@ -166,6 +167,10 @@
         system:
         {
           profile-packages = import ./tests/profile-packages.nix {
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+          skills = import ./tests/skills.nix {
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
           };
