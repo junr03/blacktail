@@ -18,15 +18,6 @@ let
       user
       ;
   };
-  skillFiles = import ./skills.nix {
-    inherit lib;
-    repositories = {
-      mattpocock = {
-        source = mattpocockSkills;
-        directories = [ "skills" ];
-      };
-    };
-  };
 in
 {
   users.users.${user} = {
@@ -79,6 +70,9 @@ in
 
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
+    extraSpecialArgs = {
+      inherit mattpocockSkills;
+    };
     useGlobalPkgs = true;
     users.${user} =
       {
@@ -88,12 +82,14 @@ in
         ...
       }:
       {
+        imports = [ ./skills.nix ];
+
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
         manual.manpages.enable = false;
 
         home = {
-          file = userFiles // skillFiles;
+          file = userFiles;
           sessionPath = [
             "$HOME/.pnpm-packages/bin"
             "$HOME/.pnpm-packages"

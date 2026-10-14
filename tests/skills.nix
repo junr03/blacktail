@@ -4,7 +4,7 @@
   source,
 }:
 let
-  skillFiles = import ../modules/skills.nix {
+  skillFiles = import ../modules/skill-files.nix {
     inherit lib;
     repositories.mattpocock = {
       inherit source;
