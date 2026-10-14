@@ -59,15 +59,18 @@
       homebrew-bundle,
       homebrew-cask,
       homebrew-core,
-      mattpocockSkills,
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
       rust-overlay,
       self,
+      ...
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
+      skillRepositories = nixpkgs.lib.filterAttrs (
+        name: _: builtins.match ".*Skills" name != null
+      ) inputs;
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
           import ./private-config { lib = nixpkgs.lib; }
@@ -131,7 +134,7 @@
         darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = inputs // {
-            inherit hostProfile hostProfileName;
+            inherit hostProfile hostProfileName skillRepositories;
             hostProfileLineage = profileLineage hostProfileName;
           };
           modules = [
@@ -177,7 +180,7 @@
           skills = import ./tests/skills.nix {
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
-            source = mattpocockSkills;
+            inherit skillRepositories;
           };
         }
         // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations

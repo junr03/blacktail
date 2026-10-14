@@ -3,8 +3,8 @@
   hostProfile,
   hostProfileLineage,
   lib,
-  mattpocockSkills,
   pkgs,
+  skillRepositories,
   ...
 }:
 let
@@ -71,7 +71,7 @@ in
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
     extraSpecialArgs = {
-      inherit mattpocockSkills;
+      inherit skillRepositories;
     };
     useGlobalPkgs = true;
     users.${user} =

@@ -1,16 +1,14 @@
 {
   lib,
   pkgs,
-  source,
+  skillRepositories,
 }:
 let
-  skillFiles = import ../modules/skill-files.nix {
+  skillModule = import ../modules/skills.nix {
     inherit lib;
-    repositories.mattpocock = {
-      inherit source;
-      directories = [ "skills" ];
-    };
+    inherit skillRepositories;
   };
+  skillFiles = skillModule.home.file;
   allFilesHaveSkillManifest = lib.all (file: builtins.pathExists (file.source + "/SKILL.md")) (
     builtins.attrValues skillFiles
   );
