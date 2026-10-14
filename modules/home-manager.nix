@@ -4,7 +4,6 @@
   hostProfileLineage,
   lib,
   pkgs,
-  skillRepositories,
   ...
 }:
 let
@@ -70,9 +69,6 @@ in
 
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
-    extraSpecialArgs = {
-      inherit skillRepositories;
-    };
     useGlobalPkgs = true;
     users.${user} =
       {

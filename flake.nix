@@ -43,10 +43,6 @@
       flake = false;
     };
     gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=2088f64f7340670b76446388e141dc64c19a5913";
-    mattpocockSkills = {
-      url = "github:mattpocock/skills";
-      flake = false;
-    };
   };
   outputs =
     {
@@ -68,9 +64,6 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      skillRepositories = nixpkgs.lib.filterAttrs (
-        name: _: builtins.match ".*Skills" name != null
-      ) inputs;
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
           import ./private-config { lib = nixpkgs.lib; }
@@ -134,7 +127,7 @@
         darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = inputs // {
-            inherit hostProfile hostProfileName skillRepositories;
+            inherit hostProfile hostProfileName;
             hostProfileLineage = profileLineage hostProfileName;
           };
           modules = [
@@ -180,7 +173,6 @@
           skills = import ./tests/skills.nix {
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
-            inherit skillRepositories;
           };
         }
         // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations

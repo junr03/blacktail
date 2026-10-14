@@ -7,11 +7,10 @@ the public keys supplied by that profile. `skills.nix` configures pinned skill
 repositories, while `skill-files.nix` links discovered skills into
 `~/.agents/skills`. `default.nix` sets Nixpkgs policy.
 
-The skill module imports every flake input whose name ends in `Skills`. It
-searches `.agents/skills/` and `skills/` in each repository by default, links
-directories that contain `SKILL.md`, and fails if two skills have the same
-directory name. Add another non-flake input with a `Skills` suffix in
-`flake.nix` to install more sources.
+The skill module searches `.agents/skills/` and `skills/` in each repository by
+default. It links directories that contain `SKILL.md` and fails if two skills
+have the same directory name. Add repositories to `skills.nix`, using a pinned
+Git revision for each source.
 
 Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.

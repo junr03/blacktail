@@ -277,22 +277,6 @@
         "type": "github"
       }
     },
-    "mattpocockSkills": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1791543409,
-        "narHash": "sha256-NljCSZNI3sZ+vbCw7pRdrwR7try4BxOFp4gdjuWYtzs=",
-        "owner": "mattpocock",
-        "repo": "skills",
-        "rev": "49dd158d1076134a641b33efb035946536778336",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mattpocock",
-        "repo": "skills",
-        "type": "github"
-      }
-    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -476,7 +460,6 @@
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
         "horaTap": "horaTap",
-        "mattpocockSkills": "mattpocockSkills",
         "nix-homebrew": "nix-homebrew",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_4",
