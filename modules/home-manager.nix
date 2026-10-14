@@ -3,6 +3,7 @@
   hostProfile,
   hostProfileLineage,
   lib,
+  mattpocockSkills,
   pkgs,
   ...
 }:
@@ -16,6 +17,15 @@ let
       lib
       user
       ;
+  };
+  skillFiles = import ./skills.nix {
+    inherit lib;
+    repositories = {
+      mattpocock = {
+        source = mattpocockSkills;
+        directories = [ "skills" ];
+      };
+    };
   };
 in
 {
@@ -83,7 +93,7 @@ in
         manual.manpages.enable = false;
 
         home = {
-          file = userFiles;
+          file = userFiles // skillFiles;
           sessionPath = [
             "$HOME/.pnpm-packages/bin"
             "$HOME/.pnpm-packages"

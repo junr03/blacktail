@@ -43,6 +43,10 @@
       flake = false;
     };
     gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=2088f64f7340670b76446388e141dc64c19a5913";
+    mattpocockSkills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
   };
   outputs =
     {
@@ -55,6 +59,7 @@
       homebrew-bundle,
       homebrew-cask,
       homebrew-core,
+      mattpocockSkills,
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
@@ -168,6 +173,11 @@
           profile-packages = import ./tests/profile-packages.nix {
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
+          };
+          skills = import ./tests/skills.nix {
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+            source = mattpocockSkills;
           };
         }
         // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
