@@ -1,0 +1,80 @@
+name: Weekly flake update
+
+on:
+  schedule:
+    - cron: "17 16 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-flake-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Update flake inputs
+        id: update
+        run: |
+          nix flake update
+          if git diff --quiet -- flake.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check public flake
+        id: public-check
+        if: steps.update.outputs.changed == 'true'
+        continue-on-error: true
+        run: nix flake check --all-systems --print-build-logs
+
+      - name: Run repository checks
+        id: pre-commit
+        if: steps.update.outputs.changed == 'true'
+        continue-on-error: true
+        run: nix develop -c pre-commit run --all-files
+
+      - name: Create or update pull request
+        if: steps.update.outcome == 'success'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: automation/weekly-flake-update
+          delete-branch: true
+          add-paths: flake.lock
+          commit-message: "chore: update Nix flake inputs"
+          title: "chore: update Nix flake inputs"
+          body: |
+            This PR updates `flake.lock` by running `nix flake update` against the latest `main` checkout.
+
+            Validation from this workflow run:
+            - Public flake check: ${{ steps.public-check.outcome }}
+            - Pre-commit checks: ${{ steps.pre-commit.outcome }}
+
+            [View the workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+            This workflow runs the public checks because PRs created with `GITHUB_TOKEN` do not trigger pull request workflows.
+            Private profile integration remains a separate maintainer-dispatched check.
+
+      - name: Report validation failures
+        if: >-
+          steps.update.outputs.changed == 'true' &&
+          (steps.public-check.outcome == 'failure' ||
+           steps.pre-commit.outcome == 'failure')
+        run: |
+          echo "The update pull request was created, but validation failed." >&2
+          exit 1
