@@ -28,6 +28,7 @@ select {
     { name = "firefox"; }
     { name = "ghostty"; }
     { name = "google-drive"; }
+    { name = "google-gemini"; }
     { name = "granola"; }
     { name = "insta360-link-controller"; }
     { name = "junr03/homebrew-blacktail/lightcraft"; }
