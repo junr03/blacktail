@@ -39,7 +39,6 @@ select {
     { name = "mimestream"; }
     { name = "monitorcontrol"; }
     { name = "obsidian"; }
-    { name = "okta-verify"; }
     { name = "openscad@snapshot"; }
     { name = "postico"; }
     {
