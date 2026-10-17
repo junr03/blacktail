@@ -102,6 +102,10 @@ receives everything selected for `personal`. Optional
 particular machine name. Optional `dnsResolvers` maps internal DNS domains to
 nameserver IP addresses; nix-darwin manages the corresponding files under
 `/etc/resolver/` for that host profile.
+Optional `dnsARecords` maps DNS suffixes to IPv4 addresses. For those suffixes,
+the selected profile routes queries to a loopback-only dnsmasq service that
+returns the configured IPv4 address for A queries and answers AAAA queries
+locally with no record.
 
 ## Integration CI
 
