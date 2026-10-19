@@ -25,11 +25,14 @@ jobs:
 
       - uses: cachix/install-nix-action@v31
 
-      - name: Update flake inputs
+      - name: Update flake inputs and LightCraft cask
         id: update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           nix flake update
-          if git diff --quiet -- flake.lock; then
+          python3 scripts/update_lightcraft_cask.py
+          if git diff --quiet -- flake.lock Casks/lightcraft.rb; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -45,7 +48,9 @@ jobs:
         id: pre-commit
         if: steps.update.outputs.changed == 'true'
         continue-on-error: true
-        run: nix develop -c pre-commit run --all-files
+        run: |
+          python3 tests/test_update_lightcraft_cask.py
+          nix develop -c pre-commit run --all-files
 
       - name: Create or update pull request
         if: steps.update.outcome == 'success'
@@ -55,11 +60,13 @@ jobs:
           base: main
           branch: automation/weekly-flake-update
           delete-branch: true
-          add-paths: flake.lock
-          commit-message: "chore: update Nix flake inputs"
-          title: "chore: update Nix flake inputs"
+          add-paths: |
+            flake.lock
+            Casks/lightcraft.rb
+          commit-message: "chore: update Nix flake inputs and LightCraft"
+          title: "chore: update Nix flake inputs and LightCraft"
           body: |
-            This PR updates `flake.lock` by running `nix flake update` against the latest `main` checkout.
+            This PR runs `nix flake update` and updates the LightCraft cask to the latest stable GitHub release.
 
             Validation from this workflow run:
             - Public flake check: ${{ steps.public-check.outcome }}
