@@ -53,10 +53,7 @@ select {
     { name = "todoist-app"; }
     { name = "work-louder-input"; }
     { name = "zed"; }
-    {
-      name = "zerotier-one";
-      profiles = [ "work" ];
-    }
+    { name = "zerotier-one"; }
     { name = "zoom"; }
   ];
 }
