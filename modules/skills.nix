@@ -4,10 +4,10 @@
 }:
 let
   repositories = {
-    mattpocock = {
+    junr03 = {
       source = builtins.fetchGit {
-        url = "https://github.com/mattpocock/skills.git";
-        rev = "49dd158d1076134a641b33efb035946536778336";
+        url = "https://github.com/JUNERDD/skills.git";
+        rev = "f76dec9eacbcea858e1d469710067020bd3fec6a";
       };
       directories = [ "skills" ];
     };
