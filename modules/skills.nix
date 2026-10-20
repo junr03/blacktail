@@ -6,8 +6,8 @@ let
   repositories = {
     junr03 = {
       source = builtins.fetchGit {
-        url = "https://github.com/JUNERDD/skills.git";
-        rev = "f76dec9eacbcea858e1d469710067020bd3fec6a";
+        url = "https://github.com/junr03/skills.git";
+        rev = "f1a08a0c90850d34689194f40fdc0ad18b987eb1";
       };
       directories = [ "skills" ];
     };
