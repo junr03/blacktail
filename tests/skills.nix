@@ -12,6 +12,7 @@ let
     builtins.attrValues skillFiles
   );
 in
-assert skillFiles != { };
+assert skillFiles ? ".agents/skills/write-like-a-human";
+assert skillFiles ? ".agents/skills/code-review";
 assert allFilesHaveSkillManifest;
 pkgs.runCommand "skills-module-check" { } "mkdir -p $out"
