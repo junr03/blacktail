@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -ne 2 ]; then
+    echo "The Blacktail pre-push hook expects Git's remote name and URL." >&2
+    exit 2
+fi
+
+repo_root=$(git rev-parse --show-toplevel)
+exec python3 "$repo_root/scripts/check_public.py" --pre-push --remote-name "$1"

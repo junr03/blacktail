@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(git rev-parse --show-toplevel)
+hook_dir=$(git rev-parse --git-path hooks)
+pre_push_hook="$hook_dir/pre-push"
+expected_hook="$repo_root/scripts/pre-push"
+
+if [ -L "$pre_push_hook" ]; then
+    if [ "$(readlink "$pre_push_hook")" != "$expected_hook" ]; then
+        echo "Refusing to replace existing pre-push hook." >&2
+        exit 1
+    fi
+elif [ -e "$pre_push_hook" ]; then
+    echo "Refusing to replace existing pre-push hook." >&2
+    exit 1
+else
+    ln -s "$expected_hook" "$pre_push_hook"
+fi
+
+pre-commit install --hook-type pre-commit

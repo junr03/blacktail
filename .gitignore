@@ -1,2 +1,6 @@
 .blacktail.local
+/hosts/
+/keys/
+/secrets/
+/private-config/*
 /result
