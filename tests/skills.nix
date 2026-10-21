@@ -1,9 +1,10 @@
 {
+  gallatin,
   lib,
   pkgs,
 }:
 let
-  skillModule = import ../modules/skills.nix {
+  skillModule = import "${gallatin}/skills" {
     inherit lib;
   };
   skillFiles = skillModule.home.file;

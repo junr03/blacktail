@@ -1,5 +1,6 @@
 {
   config,
+  gallatin,
   hostProfile,
   hostProfileLineage,
   lib,
@@ -79,7 +80,7 @@ in
         ...
       }:
       {
-        imports = [ ./skills.nix ];
+        imports = [ "${gallatin}/skills" ];
 
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
