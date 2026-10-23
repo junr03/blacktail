@@ -14,6 +14,7 @@ select {
     { name = "antigravity"; }
     { name = "antigravity-cli"; }
     { name = "antigravity-ide"; }
+    { name = "betterdisplay"; }
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "conductor"; }
@@ -31,6 +32,7 @@ select {
     { name = "google-gemini"; }
     { name = "granola"; }
     { name = "insta360-link-controller"; }
+    { name = "jump-desktop-connect"; }
     { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "szamowski-dev/tap/hora"; }

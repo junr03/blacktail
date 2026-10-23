@@ -39,6 +39,7 @@ in
     };
     masApps = {
       "1password-for-safari" = 1569813296;
+      "amphetamine" = 937984704;
       "copilot-money" = 1447330651;
       "infuse" = 1136220934;
       "kindle" = 302584613;
