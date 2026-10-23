@@ -20,6 +20,10 @@ select {
       name = "jira-cli";
       profiles = [ "work" ];
     }
+    {
+      name = "libpq";
+      profiles = [ "work" ];
+    }
     { name = "watch"; }
     { name = "worktrunk"; }
     { name = "xcodegen"; }
