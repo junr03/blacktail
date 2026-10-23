@@ -14,7 +14,6 @@ select {
     { name = "antigravity"; }
     { name = "antigravity-cli"; }
     { name = "antigravity-ide"; }
-    { name = "betterdisplay"; }
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "conductor"; }
