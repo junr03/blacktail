@@ -31,6 +31,7 @@ select {
     { name = "google-gemini"; }
     { name = "granola"; }
     { name = "insta360-link-controller"; }
+    { name = "jump-desktop-connect"; }
     { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "szamowski-dev/tap/hora"; }
