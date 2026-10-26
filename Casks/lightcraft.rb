@@ -1,6 +1,6 @@
 cask "lightcraft" do
-  version "0.9.1"
-  sha256 "5e3fde7755d0fd0fa91114fc58ef51093a81b6177dcd9aece0142b4ec10e1c5a"
+  version "0.14.0"
+  sha256 "cde8591da93f7b5aa7ad09137cc93c1ebf3b4748fe89e477bb036263d7c93e75"
 
   url "https://github.com/storytold/lightcraft/releases/download/v#{version}/lightcraft-#{version}-macos-universal.dmg"
   name "LightCraft"
