@@ -186,4 +186,16 @@ in
     };
   };
 
+  # Allow the ZeroTier daemon through macOS's app-level firewall. This adds a
+  # per-process exception without changing the global firewall settings.
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    zeroTierBinary="/Library/Application Support/ZeroTier/One/zerotier-one"
+    if [ -x "$zeroTierBinary" ]; then
+      if ! /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -Fq -- "$zeroTierBinary"; then
+        /usr/libexec/ApplicationFirewall/socketfilterfw --add "$zeroTierBinary"
+      fi
+      /usr/libexec/ApplicationFirewall/socketfilterfw --unblock "$zeroTierBinary"
+    fi
+  '';
+
 }
