@@ -26,6 +26,10 @@
       url = "github:szamowski-dev/homebrew-tap";
       flake = false;
     };
+    sillTap = {
+      url = "github:Saffsanity/homebrew-sill";
+      flake = false;
+    };
     homebrew-bundle = {
       url = "github:homebrew/homebrew-bundle";
       flake = false;
@@ -60,6 +64,7 @@
       nixpkgs,
       rust-overlay,
       self,
+      sillTap,
       ...
     }@inputs:
     let
@@ -150,6 +155,7 @@
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
                   "junr03/homebrew-blacktail" = self.outPath;
+                  "saffsanity/homebrew-sill" = sillTap;
                   "szamowski-dev/homebrew-tap" = horaTap;
                 };
                 mutableTaps = false;

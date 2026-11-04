@@ -481,7 +481,8 @@
         "nix-homebrew": "nix-homebrew",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_4",
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": "rust-overlay",
+        "sillTap": "sillTap"
       }
     },
     "rust-overlay": {
@@ -501,6 +502,22 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "sillTap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793614254,
+        "narHash": "sha256-hDp2ZEU9ndp23sqStGT3Pnp3AEkI+sj6EO18iw/IGiU=",
+        "owner": "Saffsanity",
+        "repo": "homebrew-sill",
+        "rev": "7286d44cbe1f40ba1d2ef280de1ac63f69f1def7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Saffsanity",
+        "repo": "homebrew-sill",
         "type": "github"
       }
     }
