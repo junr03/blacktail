@@ -47,6 +47,7 @@ select {
       profiles = [ "work" ];
     }
     { name = "raycast"; }
+    { name = "saffsanity/sill/sill"; }
     { name = "slack"; }
     { name = "superhuman"; }
     { name = "superset"; }
