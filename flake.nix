@@ -176,6 +176,11 @@
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
           };
+          runner-module = import ./tests/runner-module.nix {
+            inherit gallatinRunners;
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
           skills = import ./tests/skills.nix {
             inherit gallatin;
             inherit (nixpkgs) lib;

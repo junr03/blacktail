@@ -1,11 +1,9 @@
 {
   gallatin,
-  gallatinRunners,
   hostProfile,
   hostProfileLineage,
   hostProfileName,
   lib,
-  nixpkgs,
   pkgs,
   ...
 }:
@@ -30,19 +28,10 @@ let
     )
     + "\n"
   );
-  gallatinRunnerModule =
-    nixpkgs.legacyPackages."aarch64-darwin".runCommand "gallatin-darwin-github-runner-blacktail" { }
-      ''
-        mkdir -p "$out"
-        cp -R ${gallatinRunners}/. "$out/"
-        substituteInPlace "$out/darwin-github-runner.nix" \
-          --replace-fail "/usr/bin/su -s /bin/bash -l" "/usr/bin/sudo -n -u" \
-          --replace-fail " -c " " -H /bin/bash -lc "
-      '';
 in
 {
   imports = [
-    (import "${gallatinRunnerModule}/darwin-github-runner.nix")
+    ./runner-module.nix
     ./home-manager.nix
     ./.
   ];
