@@ -39,6 +39,8 @@ select {
     { name = "microsoft-teams"; }
     { name = "mimestream"; }
     { name = "monitorcontrol"; }
+    { name = "notion"; }
+    { name = "notion-calendar"; }
     { name = "obsidian"; }
     { name = "openscad@snapshot"; }
     { name = "postico"; }
