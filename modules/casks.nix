@@ -11,12 +11,8 @@ select {
     { name = "1password"; }
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
-    { name = "antigravity"; }
-    { name = "antigravity-cli"; }
-    { name = "antigravity-ide"; }
     { name = "chatgpt"; }
     { name = "claude"; }
-    { name = "conductor"; }
     {
       name = "docker-desktop";
       profiles = [ "work" ];
@@ -29,30 +25,23 @@ select {
     { name = "ghostty"; }
     { name = "google-drive"; }
     { name = "google-gemini"; }
-    { name = "granola"; }
     { name = "insta360-link-controller"; }
-    { name = "jump-desktop-connect"; }
     { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
-    { name = "szamowski-dev/tap/hora"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
-    { name = "mimestream"; }
     { name = "monitorcontrol"; }
     { name = "notion"; }
     { name = "notion-calendar"; }
     { name = "obsidian"; }
-    { name = "openscad@snapshot"; }
-    { name = "postico"; }
     {
-      name = "postman";
+      name = "postico";
       profiles = [ "work" ];
     }
     { name = "raycast"; }
     { name = "saffsanity/sill/sill"; }
     { name = "slack"; }
     { name = "superhuman"; }
-    { name = "superset"; }
     { name = "tailscale-app"; }
     { name = "todoist-app"; }
     { name = "work-louder-input"; }
