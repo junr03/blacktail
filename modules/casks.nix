@@ -34,7 +34,8 @@ select {
     { name = "notion"; }
     { name = "notion-calendar"; }
     { name = "obsidian"; }
-    { name = "postico";
+    {
+      name = "postico";
       profiles = [ "work" ];
     }
     { name = "raycast"; }
