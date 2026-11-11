@@ -73,6 +73,7 @@ in
 
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
+    extraSpecialArgs = { inherit gallatin; };
     useGlobalPkgs = true;
     users.${user} =
       {
@@ -82,7 +83,10 @@ in
         ...
       }:
       {
-        imports = [ "${gallatin}/skills" ];
+        imports = [
+          "${gallatin}/herdr/home-manager.nix"
+          "${gallatin}/skills"
+        ];
 
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
