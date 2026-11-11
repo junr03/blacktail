@@ -25,6 +25,7 @@ select {
     { name = "ghostty"; }
     { name = "google-drive"; }
     { name = "google-gemini"; }
+    { name = "herdr"; }
     { name = "insta360-link-controller"; }
     { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
