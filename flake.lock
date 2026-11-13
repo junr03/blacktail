@@ -152,17 +152,17 @@
     "gallatin": {
       "flake": false,
       "locked": {
-        "lastModified": 1794528378,
-        "narHash": "sha256-t34IVuhrTLucSboREJKm3deNlphqBQQhBmavHJYTbU8=",
+        "lastModified": 1794529203,
+        "narHash": "sha256-J4XEV1VNpXlc0VZc5jaTYmZ7JvxmVR9d4rsK/vOAH6w=",
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "879ee3248e9b8c9bf316691837ab2401627cc31b",
+        "rev": "18eb4ad6c0671274773eb12b202d82162ed10a3a",
         "type": "github"
       },
       "original": {
         "owner": "junr03",
         "repo": "gallatin",
-        "rev": "879ee3248e9b8c9bf316691837ab2401627cc31b",
+        "rev": "18eb4ad6c0671274773eb12b202d82162ed10a3a",
         "type": "github"
       }
     },
