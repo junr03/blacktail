@@ -22,6 +22,11 @@ if [[ ! "${BLACKTAIL_HOST_PROFILE}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   exit 1
 fi
 
+if [[ -n "${BLACKTAIL_USERNAME:-}" && ! "${BLACKTAIL_USERNAME}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  printf '%s\n' "BLACKTAIL_USERNAME contains invalid characters." >&2
+  exit 1
+fi
+
 if [[ ! -f ./private-config/default.nix ]]; then
   printf '%s\n' "Private configuration is missing. Run git submodule update --init private-config." >&2
   exit 1
@@ -31,10 +36,18 @@ readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" "$@")
+nix_args=()
+if [[ -n "${BLACKTAIL_USERNAME:-}" ]]; then
+  nix_args+=(--impure)
+fi
+system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" "${nix_args[@]}" "$@")
 
 printf '%b\n' "${YELLOW}Switching to the ${HOST_PROFILE} configuration...${NC}"
 # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" "$@"
+if [[ -n "${BLACKTAIL_USERNAME:-}" ]]; then
+  sudo /usr/bin/env "BLACKTAIL_USERNAME=${BLACKTAIL_USERNAME}" "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" --impure "$@"
+else
+  sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" "$@"
+fi
 
 printf '%b\n' "${GREEN}Switch complete.${NC}"
