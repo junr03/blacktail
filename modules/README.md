@@ -14,6 +14,7 @@ input and lock file.
 Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.
 App Store selections live in `home-manager.nix`.
+Vim configuration lives in `vim.nix`, imported by the Home Manager user module.
 
 Machine identities, SSH destinations, and operational aliases
 belong in `private-config/`. Passwords and private keys belong in 1Password.
