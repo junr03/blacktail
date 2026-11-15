@@ -52,7 +52,6 @@ in
         builtins.elem tap [
           "junr03/homebrew-blacktail"
           "saffsanity/homebrew-sill"
-          "szamowski-dev/homebrew-tap"
         ]
       then
         {
