@@ -26,10 +26,6 @@
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
-    horaTap = {
-      url = "github:szamowski-dev/homebrew-tap";
-      flake = false;
-    };
     sillTap = {
       url = "github:Saffsanity/homebrew-sill";
       flake = false;
@@ -59,7 +55,6 @@
       determinate,
       gallatin,
       gallatinRunners,
-      horaTap,
       home-manager,
       homebrew-bundle,
       homebrew-cask,
@@ -175,7 +170,6 @@
                   "homebrew/homebrew-bundle" = homebrew-bundle;
                   "junr03/homebrew-blacktail" = self.outPath;
                   "saffsanity/homebrew-sill" = sillTap;
-                  "szamowski-dev/homebrew-tap" = horaTap;
                 };
                 mutableTaps = false;
               };
