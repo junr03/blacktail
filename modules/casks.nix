@@ -24,6 +24,7 @@ select {
     }
     { name = "firefox"; }
     { name = "ghostty"; }
+    { name = "google-chrome"; }
     { name = "google-drive"; }
     { name = "google-gemini"; }
     { name = "herdr-app"; }
