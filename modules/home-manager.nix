@@ -84,7 +84,7 @@ in
       }:
       {
         imports = [
-          ./vim.nix
+          "${gallatin}/vim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
           "${gallatin}/skills"
         ];
