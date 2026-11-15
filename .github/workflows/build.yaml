@@ -21,5 +21,7 @@ jobs:
           test "$(nix eval --json .#darwinConfigurations --apply builtins.attrNames)" = '[]'
       - name: Check missing-private-config diagnostics
         run: python3 tests/test_build_helpers.py
+      - name: Test DNS service recovery
+        run: python3 tests/test_dnsmasq_activation.py
       - name: Test LightCraft cask updater
         run: python3 tests/test_update_lightcraft_cask.py

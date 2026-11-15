@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+service=system/org.nixos.blacktail-dnsmasq
+
+healthy() {
+  launchctl print "$service" 2>/dev/null | grep 'state = running' >/dev/null || return 1
+  local domain address actual
+  while (( $# )); do
+    domain=$1
+    address=$2
+    shift 2
+    actual=$(dig +time=1 +tries=1 +short @127.0.0.1 "$domain" A 2>/dev/null) || return 1
+    [[ "$actual" == "$address" ]] || return 1
+  done
+}
+
+if healthy "$@"; then
+  exit 0
+fi
+
+printf '%s\n' 'Starting the Blacktail DNS service...' >&2
+if ! launchctl kickstart -k "$service"; then
+  printf '%s\n' 'Failed to start the Blacktail DNS service.' >&2
+  exit 1
+fi
+
+for _ in {1..10}; do
+  if healthy "$@"; then
+    exit 0
+  fi
+  sleep 1
+done
+printf '%s\n' 'Blacktail DNS service did not become healthy; check launchctl and DNS configuration.' >&2
+exit 1
