@@ -86,6 +86,9 @@ The helpers include the private submodule in the Nix source and use `--no-link`.
 Rollback operates on the current Mac's existing generations. Build does not
 activate the system. Build-switch does, including the existing Homebrew policy
 of upgrading declared applications and uninstalling undeclared packages.
+Build-switch authenticates with sudo before building and refreshes that
+authorization until it exits, so a long build can continue unattended after
+the initial password prompt.
 
 Preserve existing settings before first activation. When a profile sets a
 Home Manager backup extension, inspect those backups after migration before
