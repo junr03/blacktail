@@ -58,8 +58,8 @@ printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\
 nix run .#build-switch
 ```
 
-The helpers use impure evaluation and pass the username to privileged activation.
-For direct Nix builds, export `BLACKTAIL_USERNAME` and pass `--impure`.
+The helpers pass the username as an explicit Nix input for both the build and
+activation. Use the helpers to supply the required local username.
 
 Review its username, Git identity, SSH destinations, application selections,
 and Home Manager backup policy before activation. Enable the SSH agent in

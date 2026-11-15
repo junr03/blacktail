@@ -1,6 +1,10 @@
 {
   description = "Nix configuration for Mac Clients";
   inputs = {
+    blacktailUsername = {
+      url = "path:./username-input";
+      flake = false;
+    };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -50,6 +54,7 @@
   };
   outputs =
     {
+      blacktailUsername,
       darwin,
       determinate,
       gallatin,
@@ -69,7 +74,7 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      usernameOverride = builtins.getEnv "BLACKTAIL_USERNAME";
+      usernameOverride = builtins.readFile (blacktailUsername + "/username");
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
           import ./private-config {

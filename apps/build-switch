@@ -40,11 +40,15 @@ fi
 readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
+username_input=$(mktemp -d)
+trap 'rm -rf "${username_input}"' EXIT
+printf '%s' "${BLACKTAIL_USERNAME}" > "${username_input}/username"
+
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --impure "$@")
+system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@")
 
 printf '%b\n' "${YELLOW}Switching to the ${HOST_PROFILE} configuration...${NC}"
 # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-sudo /usr/bin/env "BLACKTAIL_USERNAME=${BLACKTAIL_USERNAME}" "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" --impure "$@"
+sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@"
 
 printf '%b\n' "${GREEN}Switch complete.${NC}"

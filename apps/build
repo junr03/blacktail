@@ -40,7 +40,11 @@ fi
 readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
+username_input=$(mktemp -d)
+trap 'rm -rf "${username_input}"' EXIT
+printf '%s' "${BLACKTAIL_USERNAME}" > "${username_input}/username"
+
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --impure "$@"
+"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@"
 
 printf '%b\n' "${GREEN}Build complete.${NC}"
