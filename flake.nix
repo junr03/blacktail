@@ -1,6 +1,10 @@
 {
   description = "Nix configuration for Mac Clients";
   inputs = {
+    blacktailUsername = {
+      url = "path:./username-input";
+      flake = false;
+    };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -50,6 +54,7 @@
   };
   outputs =
     {
+      blacktailUsername,
       darwin,
       determinate,
       gallatin,
@@ -69,9 +74,13 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
+      usernameOverride = builtins.readFile (blacktailUsername + "/username");
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
-          import ./private-config { lib = nixpkgs.lib; }
+          import ./private-config {
+            lib = nixpkgs.lib;
+            inherit usernameOverride;
+          }
         else
           { };
       profileParents = {
@@ -84,10 +93,20 @@
           profileLineage profileParents.${profile}
         );
       hostProfiles =
-        baseHostProfiles
-        // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
-          runner = baseHostProfiles.personal;
-        };
+        nixpkgs.lib.mapAttrs
+          (
+            _: hostProfile:
+            hostProfile
+            // nixpkgs.lib.optionalAttrs (usernameOverride != "") {
+              username = usernameOverride;
+            }
+          )
+          (
+            baseHostProfiles
+            // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
+              runner = baseHostProfiles.personal;
+            }
+          );
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =

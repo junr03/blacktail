@@ -17,6 +17,18 @@
         "type": "github"
       }
     },
+    "blacktailUsername": {
+      "flake": false,
+      "locked": {
+        "path": "./username-input",
+        "type": "path"
+      },
+      "original": {
+        "path": "./username-input",
+        "type": "path"
+      },
+      "parent": []
+    },
     "brew-src": {
       "flake": false,
       "locked": {
@@ -469,6 +481,7 @@
     },
     "root": {
       "inputs": {
+        "blacktailUsername": "blacktailUsername",
         "darwin": "darwin",
         "determinate": "determinate",
         "gallatin": "gallatin",

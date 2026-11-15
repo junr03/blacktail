@@ -7,7 +7,7 @@ readonly NC='\033[0m'
 
 readonly NIX="/nix/var/nix/profiles/default/bin/nix"
 
-if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" && -f ./.blacktail.local ]]; then
+if [[ ( -z "${BLACKTAIL_HOST_PROFILE:-}" || -z "${BLACKTAIL_USERNAME:-}" ) && -f ./.blacktail.local ]]; then
   # shellcheck disable=SC1091
   source ./.blacktail.local
 fi
@@ -22,6 +22,16 @@ if [[ ! "${BLACKTAIL_HOST_PROFILE}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   exit 1
 fi
 
+if [[ -z "${BLACKTAIL_USERNAME:-}" ]]; then
+  printf '%s\n' "Set BLACKTAIL_USERNAME to your macOS account name." >&2
+  exit 1
+fi
+
+if [[ ! "${BLACKTAIL_USERNAME}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  printf '%s\n' "BLACKTAIL_USERNAME contains invalid characters." >&2
+  exit 1
+fi
+
 if [[ ! -f ./private-config/default.nix ]]; then
   printf '%s\n' "Private configuration is missing. Run git submodule update --init private-config." >&2
   exit 1
@@ -30,7 +40,11 @@ fi
 readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
+username_input=$(mktemp -d)
+trap 'rm -rf "${username_input}"' EXIT
+printf '%s' "${BLACKTAIL_USERNAME}" > "${username_input}/username"
+
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" "$@"
+"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@"
 
 printf '%b\n' "${GREEN}Build complete.${NC}"
