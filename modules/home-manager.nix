@@ -260,6 +260,25 @@ in
               let mapleader=","
               let maplocalleader=" "
 
+              "" File tree on the left; open selected files in the editing window
+              let g:netrw_banner = 0
+              let g:netrw_liststyle = 3
+              let g:netrw_winsize = 25
+              nnoremap <Leader>e :Lexplore<CR>
+
+              function! OpenDirectoryTree() abort
+                if argc() == 1 && isdirectory(argv(0))
+                  let l:directory = fnamemodify(argv(0), ':p')
+                  enew
+                  execute 'Lexplore' fnameescape(l:directory)
+                endif
+              endfunction
+
+              augroup DirectoryTree
+                autocmd!
+                autocmd VimEnter * call OpenDirectoryTree()
+              augroup END
+
               "" Change cursor on mode
               :autocmd InsertEnter * set cul
               :autocmd InsertLeave * set nocul
