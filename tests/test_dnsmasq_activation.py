@@ -24,6 +24,14 @@ else
 fi
 ''',
                 "dig": '#!/bin/bash\nprintf "%s\\n" "$ANSWER"\n',
+                "timeout": '''#!/bin/bash
+shift 2
+if [[ $1 == launchctl && $2 == kickstart && $START_RESULT == timeout ]]; then
+  echo timeout >> "$TEST_DIR/calls"
+  exit 124
+fi
+exec "$@"
+''',
                 "sleep": '#!/bin/bash\nexit 0\n',
             }
             for name, content in commands.items():
@@ -51,6 +59,12 @@ fi
         result, _ = self.run_check("stopped", start_result="fail")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Failed to start", result.stderr)
+
+    def test_hung_kickstart_fails_activation(self):
+        result, calls = self.run_check("stopped", start_result="timeout")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(calls, "timeout\n")
+        self.assertIn("timed out", result.stderr)
 
     def test_wrong_dns_answer_fails_activation(self):
         result, calls = self.run_check("running", answer="192.0.2.2")
