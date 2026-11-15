@@ -77,6 +77,21 @@ in
     };
   };
 
+  system.activationScripts.postActivation.text = lib.mkIf (dnsARecords != { }) (
+    lib.mkAfter ''
+      ${pkgs.bash}/bin/bash ${../scripts/ensure-dnsmasq} ${
+        lib.escapeShellArgs (
+          lib.flatten (
+            lib.mapAttrsToList (domain: address: [
+              domain
+              address
+            ]) dnsARecords
+          )
+        )
+      }
+    ''
+  );
+
   determinateNix = {
     enable = true;
 
