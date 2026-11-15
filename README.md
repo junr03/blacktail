@@ -49,19 +49,17 @@ inherits `personal` and adds the GitHub Actions runner:
 printf 'BLACKTAIL_HOST_PROFILE=YOUR_PROFILE\n' > .blacktail.local
 ```
 
-If the macOS account name differs from the profile's configured username, set
-`BLACKTAIL_USERNAME` in `.blacktail.local` or in the environment when invoking
-the helpers. This overrides the account name for that local build and switch;
-it does not change the committed profile. For example:
+Set `BLACKTAIL_USERNAME` to your macOS account name in `.blacktail.local` or
+in the environment when invoking the helpers. It is required for builds and
+also supplies username-dependent paths inside private profiles. For example:
 
 ```sh
 printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\n' > .blacktail.local
 nix run .#build-switch
 ```
 
-The override also applies to username-dependent paths inside private profiles.
-The helper enables impure flake evaluation only when `BLACKTAIL_USERNAME` is
-set, and passes the same value to the privileged activation step.
+The helpers use impure evaluation and pass the username to privileged activation.
+For direct Nix builds, export `BLACKTAIL_USERNAME` and pass `--impure`.
 
 Review its username, Git identity, SSH destinations, application selections,
 and Home Manager backup policy before activation. Enable the SSH agent in
