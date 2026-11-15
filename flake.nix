@@ -69,12 +69,15 @@
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
+      usernameOverride = builtins.getEnv "BLACKTAIL_USERNAME";
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
-          import ./private-config { lib = nixpkgs.lib; }
+          import ./private-config {
+            lib = nixpkgs.lib;
+            inherit usernameOverride;
+          }
         else
           { };
-      usernameOverride = builtins.getEnv "BLACKTAIL_USERNAME";
       profileParents = {
         runner = "personal";
       };
@@ -85,18 +88,20 @@
           profileLineage profileParents.${profile}
         );
       hostProfiles =
-        nixpkgs.lib.mapAttrs (
-          _: hostProfile:
-          hostProfile
-          // nixpkgs.lib.optionalAttrs (usernameOverride != "") {
-            username = usernameOverride;
-          }
-        ) (
-          baseHostProfiles
-          // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
-            runner = baseHostProfiles.personal;
-          }
-        );
+        nixpkgs.lib.mapAttrs
+          (
+            _: hostProfile:
+            hostProfile
+            // nixpkgs.lib.optionalAttrs (usernameOverride != "") {
+              username = usernameOverride;
+            }
+          )
+          (
+            baseHostProfiles
+            // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
+              runner = baseHostProfiles.personal;
+            }
+          );
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =

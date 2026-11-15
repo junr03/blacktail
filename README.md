@@ -59,6 +59,7 @@ printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\
 nix run .#build-switch
 ```
 
+The override also applies to username-dependent paths inside private profiles.
 The helper enables impure flake evaluation only when `BLACKTAIL_USERNAME` is
 set, and passes the same value to the privileged activation step.
 
