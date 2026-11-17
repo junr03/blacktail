@@ -161,6 +161,7 @@ in
       };
 
       NSGlobalDomain = {
+        AppleICUForce24HourTime = true;
         AppleShowAllExtensions = true;
         ApplePressAndHoldEnabled = false;
 
