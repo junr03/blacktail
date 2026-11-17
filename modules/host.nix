@@ -36,6 +36,8 @@ in
     ./.
   ];
 
+  users.users.${user}.openssh.authorizedKeys.keyFiles = hostProfile.authorizedKeyFiles or [ ];
+
   # Let macOS send queries for configured internal domains to their resolver.
   # The profile owns the machine-specific domain and nameserver mapping.
   environment.etc =
