@@ -156,6 +156,10 @@ in
     stateVersion = 4;
 
     defaults = {
+      CustomUserPreferences.NSGlobalDomain.AppleFirstWeekday = {
+        gregorian = 2; # Monday
+      };
+
       NSGlobalDomain = {
         AppleShowAllExtensions = true;
         ApplePressAndHoldEnabled = false;
