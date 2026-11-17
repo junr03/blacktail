@@ -43,7 +43,7 @@
       flake = false;
     };
     gallatin = {
-      url = "github:junr03/gallatin?rev=7cd3fdd81d1f4abda9bfce4c236c2f43ac51dd83";
+      url = "github:junr03/gallatin?rev=25e06ce56184a4ca8afaeed571eae21fb3e9ac36";
       flake = false;
     };
     gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=2088f64f7340670b76446388e141dc64c19a5913";
@@ -195,8 +195,12 @@
             pkgs = nixpkgs.legacyPackages.${system};
           };
           skills = import ./tests/skills.nix {
-            inherit gallatin;
+            inherit gallatin home-manager;
             inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+          codex = import ./tests/codex.nix {
+            inherit gallatin home-manager;
             pkgs = nixpkgs.legacyPackages.${system};
           };
         }
