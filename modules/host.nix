@@ -157,6 +157,7 @@ in
 
     defaults = {
       NSGlobalDomain = {
+        AppleICUForce24HourTime = true;
         AppleShowAllExtensions = true;
         ApplePressAndHoldEnabled = false;
 
