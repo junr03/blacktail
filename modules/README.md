@@ -6,10 +6,27 @@ and the 1Password agent. `files.nix` installs shared editor configuration and
 the public keys supplied by that profile. `home-manager.nix` also imports the
 shared agent skill module from Gallatin. `default.nix` sets Nixpkgs policy.
 
-Gallatin owns the pinned repositories and skill discovery in its `skills/`
-directory. It links skills into `~/.agents/skills` and rejects duplicate names.
-Add or update repositories there, then update Blacktail's pinned `gallatin`
-input and lock file.
+Gallatin supplies its shared skills and discovery logic. Blacktail can add
+sources without changing Gallatin, for example in its Home Manager user module:
+
+```nix
+blacktail.skills.repositories.my-repo = {
+  source = "${builtins.fetchGit {
+    url = "https://github.com/example/skills.git";
+    rev = "REPLACE_WITH_COMMIT";
+  }}";
+  directories = [ "skills" ];
+};
+blacktail.skills.individual.my-skill = /path/to/my-skill;
+```
+
+Repository roots default to `.agents/skills` and `skills`. Individual sources
+must contain `SKILL.md`. This also accepts directories materialized by another
+source, such as a future Notion exporter; it does not fetch Notion data itself.
+Skills are linked individually into `~/.agents/skills`; unrelated manually
+installed skills remain in place. Duplicate names across sources fail evaluation,
+and Home Manager's normal collision checks apply to existing destinations.
+Update the pinned `gallatin` input and lock file to update Gallatin's sources.
 
 Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.

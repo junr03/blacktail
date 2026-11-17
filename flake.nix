@@ -195,7 +195,7 @@
             pkgs = nixpkgs.legacyPackages.${system};
           };
           skills = import ./tests/skills.nix {
-            inherit gallatin;
+            inherit gallatin home-manager;
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
           };

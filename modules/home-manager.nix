@@ -85,7 +85,7 @@ in
         imports = [
           "${gallatin}/vim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
-          "${gallatin}/skills"
+          ./skills.nix
           ./codex.nix
         ];
 
