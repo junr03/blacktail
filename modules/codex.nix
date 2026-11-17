@@ -21,7 +21,7 @@ in
   };
 
   home.activation.mergeCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run ${python}/bin/python ${./merge-codex-config.py} \
+    run ${python}/bin/python ${../scripts/merge-codex-config.py} \
       ${codexConfig}/config.shared.toml "$HOME/.codex/config.toml"
   '';
 }

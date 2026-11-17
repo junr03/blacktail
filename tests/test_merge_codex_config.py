@@ -7,7 +7,7 @@ import unittest
 
 import tomlkit
 
-SCRIPT = Path(__file__).resolve().parents[1] / "modules/merge-codex-config.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts/merge-codex-config.py"
 
 
 class MergeCodexConfigTest(unittest.TestCase):
