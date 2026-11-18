@@ -24,6 +24,7 @@ select {
       name = "libpq";
       profiles = [ "work" ];
     }
+    { name = "plaid/plaid-cli/plaid"; }
     { name = "watch"; }
     { name = "worktrunk"; }
     { name = "xcodegen"; }
