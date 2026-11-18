@@ -11,10 +11,7 @@ select {
     { name = "1password"; }
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
-    {
-      name = "bambu-studio";
-      profiles = [ "personal" ];
-    }
+    { name = "bambu-studio"; }
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "claude-code"; }
