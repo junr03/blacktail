@@ -1,7 +1,8 @@
 {
   config,
+  gallatin,
   hostProfile,
-  hostProfileName,
+  hostProfileLineage,
   lib,
   pkgs,
   ...
@@ -30,21 +31,29 @@ in
     enable = true;
     casks = import ./casks.nix {
       inherit lib;
-      profile = hostProfileName;
+      profiles = hostProfileLineage;
     };
     brews = import ./brews.nix {
       inherit lib;
-      profile = hostProfileName;
+      profiles = hostProfileLineage;
     };
     masApps = {
       "1password-for-safari" = 1569813296;
+      "amphetamine" = 937984704;
       "copilot-money" = 1447330651;
       "infuse" = 1136220934;
+      "kindle" = 302584613;
+      "okta-verify" = 490179405;
       "photomator" = 1444636541;
     };
     taps = map (
       tap:
-      if tap == "junr03/homebrew-blacktail" then
+      if
+        builtins.elem tap [
+          "junr03/homebrew-blacktail"
+          "saffsanity/homebrew-sill"
+        ]
+      then
         {
           name = tap;
           trusted = true;
@@ -63,6 +72,7 @@ in
 
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
+    extraSpecialArgs = { inherit gallatin; };
     useGlobalPkgs = true;
     users.${user} =
       {
@@ -72,6 +82,13 @@ in
         ...
       }:
       {
+        imports = [
+          "${gallatin}/vim/home-manager.nix"
+          "${gallatin}/herdr/home-manager.nix"
+          ./skills.nix
+          ./codex.nix
+        ];
+
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
         manual.manpages.enable = false;
@@ -83,6 +100,7 @@ in
             "$HOME/.pnpm-packages"
             "$HOME/.npm-packages/bin"
             "$HOME/bin"
+            "$HOME/.local/bin"
             "$HOME/.local/share/bin"
           ];
           sessionVariables = {
@@ -139,6 +157,16 @@ in
                 nix shell "nixpkgs#$1"
               }
 
+              # Copy missing files with per-file progress, preserving existing destinations.
+              copy_files() {
+                if (( $# != 2 )); then
+                  echo "Usage: copy_files <src> <dst>"
+                  return 1
+                fi
+
+                rsync --archive --verbose --progress --ignore-existing -- "$1" "$2"
+              }
+
               # pnpm is a javascript package manager
               alias pn=pnpm
               alias px=pnpx
@@ -175,111 +203,6 @@ in
               pull.rebase = true;
               rebase.autoStash = true;
             };
-          };
-          vim = {
-            enable = true;
-            plugins = with pkgs.vimPlugins; [
-              vim-airline
-              vim-airline-themes
-              vim-startify
-              vim-tmux-navigator
-            ];
-            settings = {
-              ignorecase = true;
-            };
-            extraConfig = ''
-              "" General
-              set number
-              set history=1000
-              set modelines=0
-              set encoding=utf-8
-              set scrolloff=3
-              set showmode
-              set showcmd
-              set hidden
-              set wildmenu
-              set wildmode=list:longest
-              set cursorline
-              set ttyfast
-              set nowrap
-              set ruler
-              set backspace=indent,eol,start
-              set laststatus=2
-              set clipboard=autoselect
-
-              " Dir stuff
-              set nobackup
-              set nowritebackup
-              set noswapfile
-
-              " Relative line numbers for easy movement
-              set relativenumber
-
-              "" Whitespace rules
-              set tabstop=8
-              set shiftwidth=2
-              set softtabstop=2
-              set expandtab
-
-              "" Searching
-              set incsearch
-              set gdefault
-
-              "" Statusbar
-              let g:airline_theme='bubblegum'
-              let g:airline_powerline_fonts = 1
-
-              "" Local keys and such
-              let mapleader=","
-              let maplocalleader=" "
-
-              "" Change cursor on mode
-              :autocmd InsertEnter * set cul
-              :autocmd InsertLeave * set nocul
-
-              "" File-type highlighting and configuration
-              syntax on
-              filetype plugin indent on
-
-              "" Paste from clipboard
-              nnoremap <Leader>, "+gP
-
-              "" Copy from clipboard
-              xnoremap <Leader>. "+y
-
-              "" Move cursor by display lines when wrapping
-              nnoremap j gj
-              nnoremap k gk
-
-              "" Map leader-q to quit out of window
-              nnoremap <leader>q :q<cr>
-
-              "" Move around split
-              nnoremap <C-h> <C-w>h
-              nnoremap <C-j> <C-w>j
-              nnoremap <C-k> <C-w>k
-              nnoremap <C-l> <C-w>l
-
-              "" Easier to yank entire line
-              nnoremap Y y$
-
-              "" Move buffers
-              nnoremap <tab> :bnext<cr>
-              nnoremap <S-tab> :bprev<cr>
-
-              "" Like a boss, sudo AFTER opening the file to write
-              cmap w!! w !sudo tee % >/dev/null
-
-              let g:startify_lists = [
-                \ { 'type': 'dir',       'header': ['   Current Directory '. getcwd()] },
-                \ { 'type': 'sessions',  'header': ['   Sessions']       },
-                \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      }
-                \ ]
-
-              let g:startify_bookmarks = [
-                \ '~/.local/share/src',
-                \ ]
-            '';
           };
           ssh = {
             enable = true;

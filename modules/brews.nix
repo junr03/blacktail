@@ -1,12 +1,12 @@
 {
   lib,
-  profile,
+  profiles,
 }:
 let
   select = (import ./profile-packages.nix { inherit lib; }).select;
 in
 select {
-  inherit profile;
+  inherit profiles;
   entries = [
     {
       name = "argocd";
@@ -18,6 +18,10 @@ select {
     { name = "gptfdisk"; }
     {
       name = "jira-cli";
+      profiles = [ "work" ];
+    }
+    {
+      name = "libpq";
       profiles = [ "work" ];
     }
     { name = "plaid/plaid-cli/plaid"; }

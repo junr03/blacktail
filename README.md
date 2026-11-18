@@ -41,17 +41,38 @@ For an existing checkout:
 git submodule update --init private-config
 ```
 
-Select a profile declared in `private-config/default.nix` through the ignored
-`.blacktail.local` file:
+Select a profile through the ignored `.blacktail.local` file. Private profiles
+are declared in `private-config/default.nix`; the public `runner` profile
+inherits `personal` and adds the GitHub Actions runner:
 
 ```sh
 printf 'BLACKTAIL_HOST_PROFILE=YOUR_PROFILE\n' > .blacktail.local
 ```
 
+Set `BLACKTAIL_USERNAME` to your macOS account name in `.blacktail.local` or
+in the environment when invoking the helpers. It is required for builds and
+also supplies username-dependent paths inside private profiles. For example:
+
+```sh
+printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\n' > .blacktail.local
+nix run .#build-switch
+```
+
+The helpers pass the username as an explicit Nix input for both the build and
+activation. Use the helpers to supply the required local username.
+
 Review its username, Git identity, SSH destinations, application selections,
 and Home Manager backup policy before activation. Enable the SSH agent in
 1Password's developer settings. Keep SSH and signing private keys in
 1Password; the private repository contains only their matching public keys.
+
+Before activating the `runner` profile, create
+`/private/var/db/blacktail-github-runner/access-token` as a root-readable file.
+It must contain a GitHub access token for the runner's repository. A
+fine-grained token needs repository Administration write permission; a classic
+token needs the `repo` scope for a private repository. The bootstrap service
+uses it only to request GitHub's short-lived runner registration token; never
+commit the token.
 
 ## Build and activate
 
@@ -65,6 +86,9 @@ The helpers include the private submodule in the Nix source and use `--no-link`.
 Rollback operates on the current Mac's existing generations. Build does not
 activate the system. Build-switch does, including the existing Homebrew policy
 of upgrading declared applications and uninstalling undeclared packages.
+Build-switch authenticates with sudo before building and refreshes that
+authorization until it exits, so a long build can continue unattended after
+the initial password prompt.
 
 Preserve existing settings before first activation. When a profile sets a
 Home Manager backup extension, inspect those backups after migration before
@@ -86,10 +110,17 @@ nix flake check 'git+file://PATH_TO_CHECKOUT?submodules=1' --all-systems
 ```
 
 Private profiles supply `username`, `git`, `ssh`, `keysDirectory`, and
-`homeManager`. Public modules select software by profile name. Optional
+`homeManager`. Public modules select software by profile lineage, so `runner`
+receives everything selected for `personal`. Optional
 `shellAliases` extend the shared aliases. SSH entries supply `host` and
 `identityFile`, with optional `hostName` and `user`. They need not use any
-particular machine name.
+particular machine name. Optional `dnsResolvers` maps internal DNS domains to
+nameserver IP addresses; nix-darwin manages the corresponding files under
+`/etc/resolver/` for that host profile.
+Optional `dnsARecords` maps DNS suffixes to IPv4 addresses. For those suffixes,
+the selected profile routes queries to a loopback-only dnsmasq service that
+returns the configured IPv4 address for A queries and answers AAAA queries
+locally with no record.
 
 ## Integration CI
 

@@ -1,13 +1,13 @@
 {
   lib,
   pkgs,
-  profile,
+  profiles,
 }:
 let
   select = (import ./profile-packages.nix { inherit lib; }).select;
 in
 select {
-  inherit profile;
+  inherit profiles;
   entries = with pkgs; [
     # General packages for development and system management
     { name = bash-completion; }

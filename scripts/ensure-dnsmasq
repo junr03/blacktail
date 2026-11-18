@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+service=system/org.nixos.blacktail-dnsmasq
+
+healthy() {
+  timeout --kill-after=2s 5s launchctl print "$service" 2>/dev/null | grep 'state = running' >/dev/null || return 1
+  local domain address actual
+  while (( $# )); do
+    domain=$1
+    address=$2
+    shift 2
+    actual=$(dig +time=1 +tries=1 +short @127.0.0.1 "$domain" A 2>/dev/null) || return 1
+    [[ "$actual" == "$address" ]] || return 1
+  done
+}
+
+if healthy "$@"; then
+  exit 0
+fi
+
+wait_for_dns() {
+  for _ in {1..10}; do
+    if healthy "$@"; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+printf '%s\n' 'Starting the Blacktail DNS service...' >&2
+if timeout --kill-after=2s 10s launchctl kickstart -k "$service" && wait_for_dns "$@"; then
+  exit 0
+fi
+
+# A job registered before its Nix-store executable was available can remain
+# stuck in launchd even after the executable appears. Re-register it.
+printf '%s\n' 'Reloading the Blacktail DNS service...' >&2
+if ! timeout --kill-after=2s 10s launchctl bootout "$service"; then
+  printf '%s\n' 'Failed to remove the Blacktail DNS service registration.' >&2
+  exit 1
+fi
+if ! timeout --kill-after=2s 10s launchctl bootstrap system /Library/LaunchDaemons/org.nixos.blacktail-dnsmasq.plist; then
+  printf '%s\n' 'Failed to reload the Blacktail DNS service.' >&2
+  exit 1
+fi
+if ! wait_for_dns "$@"; then
+  printf '%s\n' 'Blacktail DNS service did not become healthy; check launchctl and DNS configuration.' >&2
+  exit 1
+fi

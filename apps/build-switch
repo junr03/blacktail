@@ -7,18 +7,28 @@ readonly NC='\033[0m'
 
 readonly NIX="/nix/var/nix/profiles/default/bin/nix"
 
-if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" && -f ./.blacktail.local ]]; then
+if [[ ( -z "${BLACKTAIL_HOST_PROFILE:-}" || -z "${BLACKTAIL_USERNAME:-}" ) && -f ./.blacktail.local ]]; then
   # shellcheck disable=SC1091
   source ./.blacktail.local
 fi
 
 if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" ]]; then
-  printf '%s\n' "Set BLACKTAIL_HOST_PROFILE to a configured profile such as personal or work." >&2
+  printf '%s\n' "Set BLACKTAIL_HOST_PROFILE to a configured profile such as personal, runner, or work." >&2
   exit 1
 fi
 
 if [[ ! "${BLACKTAIL_HOST_PROFILE}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   printf '%s\n' "BLACKTAIL_HOST_PROFILE contains invalid characters." >&2
+  exit 1
+fi
+
+if [[ -z "${BLACKTAIL_USERNAME:-}" ]]; then
+  printf '%s\n' "Set BLACKTAIL_USERNAME to your macOS account name." >&2
+  exit 1
+fi
+
+if [[ ! "${BLACKTAIL_USERNAME}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  printf '%s\n' "BLACKTAIL_USERNAME contains invalid characters." >&2
   exit 1
 fi
 
@@ -30,11 +40,47 @@ fi
 readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
+printf '%b\n' "${YELLOW}Authenticating for the configuration switch...${NC}"
+sudo -v
+
+username_input=$(mktemp -d)
+sudo_keepalive_pid=
+cleanup() {
+  if [[ -n "${sudo_keepalive_pid}" ]]; then
+    kill "${sudo_keepalive_pid}" 2>/dev/null || true
+    wait "${sudo_keepalive_pid}" 2>/dev/null || true
+  fi
+  rm -rf "${username_input}"
+}
+trap cleanup EXIT
+
+# Refresh the sudo timestamp while building, without prompting again.
+(
+  sleep_pid=
+  trap '
+    if [[ -n "${sleep_pid}" ]]; then
+      kill "${sleep_pid}" 2>/dev/null || true
+      wait "${sleep_pid}" 2>/dev/null || true
+    fi
+  ' EXIT
+  trap 'exit' TERM INT
+  while true; do
+    sleep 60 &
+    sleep_pid=$!
+    wait "${sleep_pid}"
+    sleep_pid=
+    sudo -n -v || exit
+  done
+) &
+sudo_keepalive_pid=$!
+
+printf '%s' "${BLACKTAIL_USERNAME}" > "${username_input}/username"
+
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" "$@")
+system_path=$("${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@")
 
 printf '%b\n' "${YELLOW}Switching to the ${HOST_PROFILE} configuration...${NC}"
 # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-sudo "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" "$@"
+sudo -n "${system_path}/sw/bin/darwin-rebuild" switch --flake "git+file://${PWD}?submodules=1#${HOST_PROFILE}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@"
 
 printf '%b\n' "${GREEN}Switch complete.${NC}"

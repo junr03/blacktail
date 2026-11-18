@@ -1,7 +1,11 @@
 {
   description = "Nix configuration for Mac Clients";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    blacktailUsername = {
+      url = "path:./username-input";
+      flake = false;
+    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,6 +26,10 @@
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
+    sillTap = {
+      url = "github:Saffsanity/homebrew-sill";
+      flake = false;
+    };
     homebrew-bundle = {
       url = "github:homebrew/homebrew-bundle";
       flake = false;
@@ -39,15 +47,18 @@
       flake = false;
     };
     gallatin = {
-      url = "github:junr03/gallatin?rev=7281e93b508c432fc2e83aa1c5250fe5ee92f8c9";
+      url = "github:junr03/gallatin?rev=25e06ce56184a4ca8afaeed571eae21fb3e9ac36";
       flake = false;
     };
+    gallatinRunners.url = "github:junr03/gallatin?dir=runners&rev=2088f64f7340670b76446388e141dc64c19a5913";
   };
   outputs =
     {
+      blacktailUsername,
       darwin,
       determinate,
       gallatin,
+      gallatinRunners,
       home-manager,
       homebrew-bundle,
       homebrew-cask,
@@ -58,14 +69,44 @@
       nixpkgs,
       rust-overlay,
       self,
+      sillTap,
+      ...
     }@inputs:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      hostProfiles =
+      usernameOverride = builtins.readFile (blacktailUsername + "/username");
+      baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
-          import ./private-config { lib = nixpkgs.lib; }
+          import ./private-config {
+            lib = nixpkgs.lib;
+            inherit usernameOverride;
+          }
         else
           { };
+      profileParents = {
+        runner = "personal";
+      };
+      profileLineage =
+        profile:
+        [ profile ]
+        ++ nixpkgs.lib.optionals (builtins.hasAttr profile profileParents) (
+          profileLineage profileParents.${profile}
+        );
+      hostProfiles =
+        nixpkgs.lib.mapAttrs
+          (
+            _: hostProfile:
+            hostProfile
+            // nixpkgs.lib.optionalAttrs (usernameOverride != "") {
+              username = usernameOverride;
+            }
+          )
+          (
+            baseHostProfiles
+            // nixpkgs.lib.optionalAttrs (baseHostProfiles ? personal) {
+              runner = baseHostProfiles.personal;
+            }
+          );
       toolSystems = darwinSystems ++ [ "x86_64-linux" ];
       forAllToolSystems = f: nixpkgs.lib.genAttrs toolSystems f;
       devShell =
@@ -111,6 +152,7 @@
           system = "aarch64-darwin";
           specialArgs = inputs // {
             inherit hostProfile hostProfileName;
+            hostProfileLineage = profileLineage hostProfileName;
           };
           modules = [
             {
@@ -133,6 +175,7 @@
                   "homebrew/homebrew-bundle" = homebrew-bundle;
                   "plaid/homebrew-plaid-cli" = homebrew-plaid-cli;
                   "junr03/homebrew-blacktail" = self.outPath;
+                  "saffsanity/homebrew-sill" = sillTap;
                 };
                 mutableTaps = false;
               };
@@ -146,7 +189,28 @@
 
       apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
       checks = nixpkgs.lib.genAttrs darwinSystems (
-        _: nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
+        system:
+        {
+          profile-packages = import ./tests/profile-packages.nix {
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+          runner-module = import ./tests/runner-module.nix {
+            inherit gallatinRunners;
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+          skills = import ./tests/skills.nix {
+            inherit gallatin home-manager;
+            inherit (nixpkgs) lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+          codex = import ./tests/codex.nix {
+            inherit gallatin home-manager;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
+        }
+        // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
       );
       devShells = forAllToolSystems devShell;
       formatter = forAllToolSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
