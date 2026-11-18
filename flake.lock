@@ -239,6 +239,22 @@
         "type": "github"
       }
     },
+    "homebrew-plaid-cli": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792195532,
+        "narHash": "sha256-7ndRvzNUq/TtxeDMqFUp4DYTYKgKlnBVLSkbR8CNDvw=",
+        "owner": "plaid",
+        "repo": "homebrew-plaid-cli",
+        "rev": "eed9f12ca05c56ff1c1eaf3229e3220576a97899",
+        "type": "github"
+      },
+      "original": {
+        "owner": "plaid",
+        "repo": "homebrew-plaid-cli",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -383,6 +399,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-plaid-cli": "homebrew-plaid-cli",
         "nix-homebrew": "nix-homebrew",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_3",

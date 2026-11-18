@@ -34,6 +34,10 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    homebrew-plaid-cli = {
+      url = "github:plaid/homebrew-plaid-cli";
+      flake = false;
+    };
     gallatin = {
       url = "github:junr03/gallatin?rev=7281e93b508c432fc2e83aa1c5250fe5ee92f8c9";
       flake = false;
@@ -48,6 +52,7 @@
       homebrew-bundle,
       homebrew-cask,
       homebrew-core,
+      homebrew-plaid-cli,
       nix-homebrew,
       nix-vscode-extensions,
       nixpkgs,
@@ -126,6 +131,7 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
+                  "plaid/homebrew-plaid-cli" = homebrew-plaid-cli;
                   "junr03/homebrew-blacktail" = self.outPath;
                 };
                 mutableTaps = false;
