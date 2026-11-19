@@ -5,6 +5,10 @@
       url = "path:./username-input";
       flake = false;
     };
+    blacktailMacName = {
+      url = "path:./mac-name-input";
+      flake = false;
+    };
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -55,6 +59,7 @@
   outputs =
     {
       blacktailUsername,
+      blacktailMacName,
       darwin,
       determinate,
       gallatin,
@@ -75,6 +80,7 @@
     let
       darwinSystems = [ "aarch64-darwin" ];
       usernameOverride = builtins.readFile (blacktailUsername + "/username");
+      macNameOverride = builtins.readFile (blacktailMacName + "/name");
       baseHostProfiles =
         if builtins.pathExists ./private-config/default.nix then
           import ./private-config {
@@ -152,6 +158,7 @@
           system = "aarch64-darwin";
           specialArgs = inputs // {
             inherit hostProfile hostProfileName;
+            inherit macNameOverride;
             hostProfileLineage = profileLineage hostProfileName;
           };
           modules = [

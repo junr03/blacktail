@@ -51,10 +51,11 @@ printf 'BLACKTAIL_HOST_PROFILE=YOUR_PROFILE\n' > .blacktail.local
 
 Set `BLACKTAIL_USERNAME` to your macOS account name in `.blacktail.local` or
 in the environment when invoking the helpers. It is required for builds and
-also supplies username-dependent paths inside private profiles. For example:
+also supplies username-dependent paths inside private profiles. Optionally set
+`BLACKTAIL_MAC_NAME` to manage the Mac's Computer Name. For example:
 
 ```sh
-printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\n' > .blacktail.local
+printf 'BLACKTAIL_HOST_PROFILE=personal\nBLACKTAIL_USERNAME=YOUR_MACOS_USERNAME\nBLACKTAIL_MAC_NAME="MacBook Pro"\n' > .blacktail.local
 nix run .#build-switch
 ```
 
