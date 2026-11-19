@@ -17,6 +17,18 @@
         "type": "github"
       }
     },
+    "blacktailMacName": {
+      "flake": false,
+      "locked": {
+        "path": "./mac-name-input",
+        "type": "path"
+      },
+      "original": {
+        "path": "./mac-name-input",
+        "type": "path"
+      },
+      "parent": []
+    },
     "blacktailUsername": {
       "flake": false,
       "locked": {
@@ -481,6 +493,7 @@
     },
     "root": {
       "inputs": {
+        "blacktailMacName": "blacktailMacName",
         "blacktailUsername": "blacktailUsername",
         "darwin": "darwin",
         "determinate": "determinate",
