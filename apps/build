@@ -7,9 +7,15 @@ readonly NC='\033[0m'
 
 readonly NIX="/nix/var/nix/profiles/default/bin/nix"
 
-if [[ ( -z "${BLACKTAIL_HOST_PROFILE:-}" || -z "${BLACKTAIL_USERNAME:-}" ) && -f ./.blacktail.local ]]; then
+if [[ -f ./.blacktail.local ]]; then
+  blacktail_env_host_profile="${BLACKTAIL_HOST_PROFILE:-}"
+  blacktail_env_username="${BLACKTAIL_USERNAME:-}"
+  blacktail_env_mac_name="${BLACKTAIL_MAC_NAME:-}"
   # shellcheck disable=SC1091
   source ./.blacktail.local
+  BLACKTAIL_HOST_PROFILE="${blacktail_env_host_profile:-${BLACKTAIL_HOST_PROFILE:-}}"
+  BLACKTAIL_USERNAME="${blacktail_env_username:-${BLACKTAIL_USERNAME:-}}"
+  BLACKTAIL_MAC_NAME="${blacktail_env_mac_name:-${BLACKTAIL_MAC_NAME:-}}"
 fi
 
 if [[ -z "${BLACKTAIL_HOST_PROFILE:-}" ]]; then
@@ -41,10 +47,12 @@ readonly HOST_PROFILE="${BLACKTAIL_HOST_PROFILE}"
 readonly FLAKE_SYSTEM="darwinConfigurations.${HOST_PROFILE}.system"
 
 username_input=$(mktemp -d)
-trap 'rm -rf "${username_input}"' EXIT
+mac_name_input=$(mktemp -d)
+trap 'rm -rf "${username_input}" "${mac_name_input}"' EXIT
 printf '%s' "${BLACKTAIL_USERNAME}" > "${username_input}/username"
+printf '%s' "${BLACKTAIL_MAC_NAME:-}" > "${mac_name_input}/name"
 
 printf '%b\n' "${YELLOW}Starting ${HOST_PROFILE} build...${NC}"
-"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --no-write-lock-file "$@"
+"${NIX}" build --no-link --print-out-paths "git+file://${PWD}?submodules=1#${FLAKE_SYSTEM}" --override-input blacktailUsername "path:${username_input}" --override-input blacktailMacName "path:${mac_name_input}" --no-write-lock-file "$@"
 
 printf '%b\n' "${GREEN}Build complete.${NC}"

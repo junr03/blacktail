@@ -4,6 +4,7 @@
   hostProfileLineage,
   hostProfileName,
   lib,
+  macNameOverride,
   pkgs,
   ...
 }:
@@ -30,6 +31,8 @@ let
   );
 in
 {
+  networking.computerName = lib.mkIf (macNameOverride != "") macNameOverride;
+
   imports = [
     ./runner-module.nix
     ./home-manager.nix
@@ -181,6 +184,7 @@ in
       dock = {
         autohide = true;
         show-recents = false;
+        persistent-apps = [ ];
         launchanim = true;
         orientation = "bottom";
         tilesize = 96;
