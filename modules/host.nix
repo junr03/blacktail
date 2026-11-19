@@ -68,10 +68,18 @@ in
   launchd.daemons = lib.mkIf (dnsARecords != { }) {
     blacktail-dnsmasq = {
       serviceConfig = {
+        # Launchd can start before the Nix store is mounted. Use the system
+        # shell to wait for dnsmasq instead of leaving the job in its penalty box.
         ProgramArguments = [
+          "/bin/sh"
+          "-c"
+          ''
+            while [ ! -x "$1" ]; do /bin/sleep 1; done
+            exec "$1" --keep-in-foreground "--conf-file=$2"
+          ''
+          "blacktail-dnsmasq"
           (lib.getExe pkgs.dnsmasq)
-          "--keep-in-foreground"
-          "--conf-file=${dnsmasqConfig}"
+          "${dnsmasqConfig}"
         ];
         RunAtLoad = true;
         KeepAlive = true;
