@@ -13,6 +13,7 @@ select {
     { name = "adobe-creative-cloud"; }
     { name = "artcraft-launcher"; }
     { name = "bambu-studio"; }
+    { name - "beeper"; }
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "claude-code"; }
