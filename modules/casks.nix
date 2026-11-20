@@ -30,7 +30,7 @@ select {
     { name = "google-gemini"; }
     { name = "herdr-app"; }
     { name = "insta360-link-controller"; }
-    { name = "junr03/homebrew-blacktail/lightcraft"; }
+    { name = "artcraft-launcher"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
