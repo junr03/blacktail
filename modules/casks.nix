@@ -11,6 +11,7 @@ select {
     { name = "1password"; }
     { name = "1password-cli"; }
     { name = "adobe-creative-cloud"; }
+    { name = "artcraft-launcher"; }
     { name = "bambu-studio"; }
     { name = "chatgpt"; }
     { name = "claude"; }
@@ -30,7 +31,6 @@ select {
     { name = "google-gemini"; }
     { name = "herdr-app"; }
     { name = "insta360-link-controller"; }
-    { name = "junr03/homebrew-blacktail/lightcraft"; }
     { name = "junr03/homebrew-blacktail/nuphy-io"; }
     { name = "microsoft-office"; }
     { name = "microsoft-teams"; }
