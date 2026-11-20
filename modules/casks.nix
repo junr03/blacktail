@@ -16,6 +16,7 @@ select {
     { name = "chatgpt"; }
     { name = "claude"; }
     { name = "claude-code"; }
+    { name = "discord"; }
     {
       name = "docker-desktop";
       profiles = [ "work" ];
