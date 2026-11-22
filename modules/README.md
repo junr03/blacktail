@@ -30,7 +30,7 @@ Update the pinned `gallatin` input and lock file to update Gallatin's sources.
 
 Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.
-App Store selections live in `home-manager.nix`.
+App Store selections live in `mas-apps.nix`.
 Vim configuration lives in Gallatin's `vim/home-manager.nix`, imported by the
 Home Manager user module alongside Gallatin's Herdr and agent skill modules.
 
