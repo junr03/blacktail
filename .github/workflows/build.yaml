@@ -23,3 +23,5 @@ jobs:
         run: python3 tests/test_build_helpers.py
       - name: Test DNS service recovery
         run: python3 tests/test_dnsmasq_activation.py
+      - name: Test Muse installer link resolution
+        run: ruby tests/test_muse_download_strategy.rb
