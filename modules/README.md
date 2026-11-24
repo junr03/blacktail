@@ -31,6 +31,12 @@ Update the pinned `gallatin` input and lock file to update Gallatin's sources.
 Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.
 App Store selections live in `mas-apps.nix`.
+
+Muse from Meta uses `Casks/muse.rb` because its Mac app is a direct download
+and Homebrew's upstream cask is disabled. The custom download strategy resolves
+an expiring installer link from Meta's official page at download time. The cask
+tracks the latest release without a pinned checksum; Muse handles its own updates.
+
 Vim configuration lives in Gallatin's `vim/home-manager.nix`, imported by the
 Home Manager user module alongside Gallatin's Herdr and agent skill modules.
 
