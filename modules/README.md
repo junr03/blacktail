@@ -37,6 +37,11 @@ and Homebrew's upstream cask is disabled. The custom download strategy resolves
 an expiring installer link from Meta's official page at download time. The cask
 tracks the latest release without a pinned checksum; Muse handles its own updates.
 
+Agent Meter uses `Casks/agent-meter.rb` because upstream publishes source without
+a prebuilt app. The cask pins an upstream commit and builds the app with its
+provided script during installation. It requires Swift 6.0 or later from Xcode
+Command Line Tools; bump the cask's version to update the source revision.
+
 Vim configuration lives in Gallatin's `vim/home-manager.nix`, imported by the
 Home Manager user module alongside Gallatin's Herdr and agent skill modules.
 
