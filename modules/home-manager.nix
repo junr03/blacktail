@@ -5,6 +5,7 @@
   hostProfileLineage,
   lib,
   pkgs,
+  rex,
   ...
 }:
 let
@@ -64,19 +65,22 @@ in
 
   home-manager = {
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
-    extraSpecialArgs = { inherit gallatin; };
+    extraSpecialArgs = { inherit gallatin rex; };
     useGlobalPkgs = true;
     users.${user} =
       {
         pkgs,
         config,
         lib,
+        rex,
         ...
       }:
       {
         imports = [
           "${gallatin}/vim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
+          rex.homeManagerModules.default
+          ./rex.nix
           ./skills.nix
           ./codex.nix
         ];

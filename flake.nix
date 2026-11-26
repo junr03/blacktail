@@ -10,6 +10,7 @@
       flake = false;
     };
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    rex.url = "https://pkgs.superlogical.com/rex/nix/preview.tar.gz";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
