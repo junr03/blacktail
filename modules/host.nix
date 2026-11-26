@@ -36,6 +36,7 @@ in
   imports = [
     ./runner-module.nix
     ./home-manager.nix
+    ./rex/preferences.nix
     ./.
   ];
 
