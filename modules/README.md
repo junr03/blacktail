@@ -39,8 +39,9 @@ tracks the latest release without a pinned checksum; Muse handles its own update
 
 Agent Meter uses `Casks/agent-meter.rb` because upstream publishes source without
 a prebuilt app. The cask pins an upstream commit and builds the app with its
-provided script during installation. It requires Swift 6.0 or later from Xcode
-Command Line Tools; bump the cask's version to update the source revision.
+provided script during installation. A Command Line Tools-only setup needs the
+macOS 26.5 or 26 SDK for SwiftUI compatibility; a full Xcode installation can
+use its selected SDK. Bump the cask's version to update the source revision.
 
 Vim configuration lives in Gallatin's `vim/home-manager.nix`, imported by the
 Home Manager user module alongside Gallatin's Herdr and agent skill modules.
