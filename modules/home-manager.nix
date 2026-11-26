@@ -80,7 +80,7 @@ in
           "${gallatin}/vim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
           rex.homeManagerModules.default
-          ./rex.nix
+          ./rex/home-manager.nix
           ./skills.nix
           ./codex.nix
         ];

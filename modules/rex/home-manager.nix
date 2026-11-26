@@ -2,7 +2,7 @@
 {
   programs.rex = {
     enable = true;
-    config = builtins.readFile ./rex/init.lua;
+    config = builtins.readFile ./init.lua;
   };
 
   programs.zsh.initContent = lib.mkAfter ''
