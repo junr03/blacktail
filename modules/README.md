@@ -42,8 +42,11 @@ a prebuilt app. The cask pins an upstream commit and builds the app with its
 provided script during installation. It requires Swift 6.0 or later from Xcode
 Command Line Tools; bump the cask's version to update the source revision.
 
-Vim configuration lives in Gallatin's `vim/home-manager.nix`, imported by the
-Home Manager user module alongside Gallatin's Herdr and agent skill modules.
+LazyVim configuration lives in Gallatin's `neovim/home-manager.nix`, imported by
+the Home Manager user module alongside Gallatin's Herdr and agent skill modules.
+Activation restores Gallatin's shared plugin lockfile and extras selection and
+requires network access. Configure the starter in Gallatin to share changes with
+Electricpeak.
 
 `codex.nix` installs Gallatin's Codex instructions, agents, keybindings, and
 rules through Home Manager. On activation it merges the shared TOML settings

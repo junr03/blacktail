@@ -77,7 +77,7 @@ in
       }:
       {
         imports = [
-          "${gallatin}/vim/home-manager.nix"
+          "${gallatin}/neovim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
           rex.homeManagerModules.default
           ./rex/home-manager.nix
@@ -193,7 +193,7 @@ in
               };
               init.defaultBranch = "main";
               core = {
-                editor = "vim";
+                editor = "nvim";
                 autocrlf = "input";
               };
               pull.rebase = true;
