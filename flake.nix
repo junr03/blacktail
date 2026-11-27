@@ -217,6 +217,11 @@
             inherit gallatin home-manager;
             pkgs = nixpkgs.legacyPackages.${system};
           };
+          editor = import ./tests/editor.nix {
+            inherit gallatin home-manager;
+            pkgs = nixpkgs.legacyPackages.${system};
+            rex = inputs.rex;
+          };
         }
         // nixpkgs.lib.mapAttrs (_: configuration: configuration.system) darwinConfigurations
       );

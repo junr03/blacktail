@@ -101,9 +101,7 @@ in
           ];
           sessionVariables = {
             ALTERNATE_EDITOR = "";
-            EDITOR = "code";
             HISTIGNORE = "pwd:ls:cd";
-            VISUAL = "code";
           };
           stateVersion = "23.11";
         };
