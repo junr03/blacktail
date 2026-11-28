@@ -203,6 +203,10 @@
             inherit (nixpkgs) lib;
             pkgs = nixpkgs.legacyPackages.${system};
           };
+          npm = import ./tests/npm.nix {
+            inherit home-manager;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
           runner-module = import ./tests/runner-module.nix {
             inherit gallatinRunners;
             inherit (nixpkgs) lib;

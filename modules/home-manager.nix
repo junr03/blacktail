@@ -11,6 +11,7 @@
 let
   user = hostProfile.username;
   userHome = "/Users/${user}";
+  # Shared configuration files and profile-supplied public keys.
   userFiles = import ./files.nix {
     inherit
       config
@@ -28,17 +29,23 @@ in
     shell = pkgs.zsh;
   };
 
+  # Nix system packages from packages.nix are wired in host.nix.
+  # Homebrew selections are wired here and installed during Darwin activation.
   homebrew = {
     enable = true;
+    # Homebrew casks selected for this profile.
     casks = import ./casks.nix {
       inherit lib;
       profiles = hostProfileLineage;
     };
+    # Homebrew formulae selected for this profile.
     brews = import ./brews.nix {
       inherit lib;
       profiles = hostProfileLineage;
     };
+    # Shared Mac App Store applications.
     masApps = import ./mas-apps.nix;
+    # Use the taps declared by nix-homebrew; trust the custom cask sources.
     taps = map (
       tap:
       if
@@ -55,6 +62,7 @@ in
         tap
     ) (builtins.attrNames config.nix-homebrew.taps);
 
+    # Reconcile Homebrew installations with the declared selections.
     onActivation = {
       autoUpdate = false;
       cleanup = "uninstall";
@@ -67,6 +75,38 @@ in
     backupFileExtension = hostProfile.homeManager.backupFileExtension;
     extraSpecialArgs = { inherit gallatin rex; };
     useGlobalPkgs = true;
+    # Install declared npm packages in the user's prefix during Home Manager activation.
+    sharedModules = [
+      (
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        let
+          packages = config.blacktail.npm.packages;
+        in
+        {
+          options.blacktail.npm.packages = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+            description = "npm package specs to install globally during Home Manager activation.";
+          };
+
+          config = {
+            home.sessionPath = [ "$HOME/.npm-packages/bin" ];
+            home.activation.installNpmPackages = lib.mkIf (packages != [ ]) (
+              lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                run ${pkgs.coreutils}/bin/env PATH="${pkgs.nodejs}/bin:$PATH" \
+                  ${pkgs.nodejs}/bin/npm install --global --prefix "$HOME/.npm-packages" \
+                  -- ${lib.escapeShellArgs packages}
+              ''
+            );
+          };
+        }
+      )
+    ];
     users.${user} =
       {
         pkgs,
@@ -77,24 +117,35 @@ in
       }:
       {
         imports = [
+          # Shared editor and Herdr packages and configuration from Gallatin.
           "${gallatin}/neovim/home-manager.nix"
           "${gallatin}/herdr/home-manager.nix"
+          # Rex package installation and local configuration.
           rex.homeManagerModules.default
           ./rex/home-manager.nix
+          # Link Gallatin's shared skills and any additional Blacktail skill sources.
           ./skills.nix
+          # Install Gallatin's shared Codex configuration and supporting files.
           ./codex.nix
         ];
+
+        # Feed profile-selected npm specs into the activation installer above.
+        blacktail.npm.packages = import ./npm.nix {
+          inherit lib;
+          profiles = hostProfileLineage;
+        };
 
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
         manual.manpages.enable = false;
 
         home = {
+          # Install the shared files selected by files.nix.
           file = userFiles;
+          # Expose user-installed tools; the npm installer adds its own bin directory.
           sessionPath = [
             "$HOME/.pnpm-packages/bin"
             "$HOME/.pnpm-packages"
-            "$HOME/.npm-packages/bin"
             "$HOME/bin"
             "$HOME/.local/bin"
             "$HOME/.local/share/bin"
@@ -318,6 +369,7 @@ in
                 "editor.fontWeight" = "400";
               };
 
+              # Install VS Code extensions from the pinned Nix marketplace input.
               extensions = with pkgs.vscode-marketplace; [
                 jdinhlife.gruvbox
                 rust-lang.rust-analyzer
