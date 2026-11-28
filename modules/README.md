@@ -32,12 +32,12 @@ Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.
 App Store selections live in `mas-apps.nix`.
 
-Global npm package selections live in `npm-packages.nix`, using the same
+Global npm package selections live in `npm.nix`, using the same
 profile selection as the other package lists. Add entries such as
 `{ name = "@scope/package@1.2.3"; }`, or add `profiles = [ "work" ];` to
 restrict an entry. The list starts empty.
 
-`npm.nix` installs those packages into `~/.npm-packages` during Home Manager
+`home-manager.nix` installs those packages into `~/.npm-packages` during Home Manager
 activation and adds its `bin` directory to PATH. A nonempty list requires
 network access to the configured npm registry. Pin exact versions for consistent
 installs; unversioned specs resolve the current release on activation. Packages

@@ -26,7 +26,7 @@ let
   home = home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     extraSpecialArgs = { inherit gallatin rex; };
-    modules = [
+    modules = host.home-manager.sharedModules ++ [
       host.home-manager.users.${username}
       {
         home.username = username;

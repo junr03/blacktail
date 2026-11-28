@@ -8,12 +8,20 @@ let
     test "''${PATH%%:*}" = "${placeholder "out"}/bin"
     exit "''${NPM_TEST_EXIT:-0}"
   '';
+  hostModule = import ../modules/home-manager.nix {
+    config = { };
+    gallatin = null;
+    hostProfile.username = "npm-test";
+    hostProfileLineage = [ ];
+    lib = pkgs.lib;
+    inherit pkgs;
+    rex = null;
+  };
   mkHome =
     packages:
     home-manager.lib.homeManagerConfiguration {
       pkgs = pkgs.extend (_: _: { nodejs = fakeNode; });
-      modules = [
-        ../modules/npm.nix
+      modules = hostModule.home-manager.sharedModules ++ [
         {
           home.username = "npm-test";
           home.homeDirectory = "/Users/npm-test";

@@ -1,27 +1,15 @@
 {
-  config,
   lib,
-  pkgs,
-  ...
+  profiles,
 }:
 let
-  packages = config.blacktail.npm.packages;
+  select = (import ./profile-packages.nix { inherit lib; }).select;
 in
-{
-  options.blacktail.npm.packages = lib.mkOption {
-    type = lib.types.listOf lib.types.str;
-    default = [ ];
-    description = "npm package specs to install globally during Home Manager activation.";
-  };
-
-  config = {
-    home.sessionPath = [ "$HOME/.npm-packages/bin" ];
-    home.activation.installNpmPackages = lib.mkIf (packages != [ ]) (
-      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        run ${pkgs.coreutils}/bin/env PATH="${pkgs.nodejs}/bin:$PATH" \
-          ${pkgs.nodejs}/bin/npm install --global --prefix "$HOME/.npm-packages" \
-          -- ${lib.escapeShellArgs packages}
-      ''
-    );
-  };
+select {
+  inherit profiles;
+  entries = [
+    # Add npm package specs here, optionally restricted to profiles:
+    # { name = "@scope/package@1.2.3"; }
+    # { name = "package@1.2.3"; profiles = [ "work" ]; }
+  ];
 }
