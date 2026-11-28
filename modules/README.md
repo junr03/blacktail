@@ -35,7 +35,7 @@ App Store selections live in `mas-apps.nix`.
 Global npm package selections live in `npm.nix`, using the same
 profile selection as the other package lists. Add entries such as
 `{ name = "@scope/package@1.2.3"; }`, or add `profiles = [ "work" ];` to
-restrict an entry. The list starts empty.
+restrict an entry. `rex-usage` is installed for all profiles.
 
 `home-manager.nix` installs those packages into `~/.npm-packages` during Home Manager
 activation and adds its `bin` directory to PATH. A nonempty list requires
