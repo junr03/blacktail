@@ -32,6 +32,20 @@ Homebrew and Nix package selections live in `brews.nix`, `casks.nix`, and
 `packages.nix`. `profile-packages.nix` selects entries for each profile.
 App Store selections live in `mas-apps.nix`.
 
+Global npm package selections live in `npm-packages.nix`, using the same
+profile selection as the other package lists. Add entries such as
+`{ name = "@scope/package@1.2.3"; }`, or add `profiles = [ "work" ];` to
+restrict an entry. The list starts empty.
+
+`npm.nix` installs those packages into `~/.npm-packages` during Home Manager
+activation and adds its `bin` directory to PATH. A nonempty list requires
+network access to the configured npm registry. Pin exact versions for consistent
+installs; unversioned specs resolve the current release on activation. Packages
+removed from the list remain installed until manually uninstalled with
+`npm uninstall --global --prefix ~/.npm-packages <package>`. Existing global
+packages and npm configuration are preserved. Nix-provided Node.js tools, such
+as Prettier, remain in `packages.nix`.
+
 Muse from Meta uses `Casks/muse.rb` because its Mac app is a direct download
 and Homebrew's upstream cask is disabled. The custom download strategy resolves
 an expiring installer link from Meta's official page at download time. The cask

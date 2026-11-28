@@ -83,7 +83,13 @@ in
           ./rex/home-manager.nix
           ./skills.nix
           ./codex.nix
+          ./npm.nix
         ];
+
+        blacktail.npm.packages = import ./npm-packages.nix {
+          inherit lib;
+          profiles = hostProfileLineage;
+        };
 
         # Home Manager's generated manpage uses nixosOptionsDoc, which emits
         # a Nix 2.34 string-context warning while creating options.json.
@@ -94,7 +100,6 @@ in
           sessionPath = [
             "$HOME/.pnpm-packages/bin"
             "$HOME/.pnpm-packages"
-            "$HOME/.npm-packages/bin"
             "$HOME/bin"
             "$HOME/.local/bin"
             "$HOME/.local/share/bin"
